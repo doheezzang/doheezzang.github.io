@@ -1,0 +1,3244 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>메디도스 Pro (MediDose Pro)</title>
+  <meta name="description" content="중환자실 및 임상 간호사를 위한 정밀 약물 용량 계산기, KPIC 임상 약물사전, 식약처 DUR 임부금기 가이드 및 AI AST 판독 타이머" />
+  <meta property="og:title" content="메디도스 Pro (MediDose Pro)" />
+  <meta property="og:description" content="중환자실 및 임상 간호사를 위한 정밀 약물 용량 계산기, KPIC 임상 약물사전, 식약처 DUR 임부금기 가이드 및 AI AST 판독 타이머" />
+  <meta property="og:type" content="website" />
+  <meta name="twitter:card" content="summary_large_image" />
+
+  <!-- Tailwind CSS with plugins -->
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <!-- Phosphor Icons for Medical & UI Icons -->
+  <script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
+  <!-- React & ReactDOM 18 -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <!-- Babel Standalone for in-browser JSX parsing -->
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <!-- Pretendard Font -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;500;600;700;800;900&display=swap">
+
+  <style>
+    /* Custom Scrollbar for sleek pink look */
+    ::-webkit-scrollbar {
+      width: 5px;
+      height: 5px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #fbcfe8;
+      border-radius: 10px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #f472b6;
+    }
+    
+    /* Hide number input spinners for cleaner calculator UI */
+    input[type=number]::-webkit-inner-spin-button, 
+    input[type=number]::-webkit-outer-spin-button { 
+      -webkit-appearance: none; 
+      margin: 0; 
+    }
+    input[type=number] {
+      -moz-appearance: textfield;
+    }
+    
+    /* iOS safe area padding support */
+    .pb-safe {
+      padding-bottom: env(safe-area-inset-bottom, 20px);
+    }
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+
+    body {
+      background-color: #fff5f7;
+      font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+    }
+  </style>
+</head>
+<body class="text-slate-900 font-sans antialiased bg-[#fff5f7]">
+  <div id="root"></div>
+
+  <script type="text/babel">
+const { useState, useEffect, useMemo, useRef } = React;
+const icuDrugs = [
+  {
+    id: "norepi",
+    name: "Norepinephrine",
+    nameKr: "노르에피네프린",
+    type: "승압제",
+    defaultAmount: 16,
+    defaultAmountUnit: "mg",
+    defaultVol: 500,
+    doseUnit: "mcg/kg/min",
+    step: 0.05,
+    maxAlert: 1,
+    color: "text-red-600",
+    badge: "🔴 고위험"
+  },
+  {
+    id: "epi",
+    name: "Epinephrine",
+    nameKr: "에피네프린",
+    type: "승압제",
+    defaultAmount: 4,
+    defaultAmountUnit: "mg",
+    defaultVol: 250,
+    doseUnit: "mcg/kg/min",
+    step: 0.01,
+    maxAlert: 0.3,
+    color: "text-orange-600",
+    badge: "🔴 고위험"
+  },
+  {
+    id: "dobu",
+    name: "Dobutamine",
+    nameKr: "도부타민",
+    type: "강심제",
+    defaultAmount: 1e3,
+    defaultAmountUnit: "mg",
+    defaultVol: 500,
+    doseUnit: "mcg/kg/min",
+    step: 1,
+    maxAlert: 20,
+    color: "text-green-600",
+    badge: "🔴 고위험"
+  },
+  {
+    id: "dopa",
+    name: "Dopamine",
+    nameKr: "도파민",
+    type: "승압제/강심제",
+    defaultAmount: 400,
+    defaultAmountUnit: "mg",
+    defaultVol: 200,
+    doseUnit: "mcg/kg/min",
+    step: 1,
+    maxAlert: 20,
+    color: "text-yellow-600",
+    badge: "🔴 고위험"
+  },
+  {
+    id: "propo",
+    name: "Propofol",
+    nameKr: "프로포폴",
+    type: "진정제",
+    defaultAmount: 500,
+    defaultAmountUnit: "mg",
+    defaultVol: 50,
+    doseUnit: "mg/kg/hr",
+    step: 0.5,
+    maxAlert: 4,
+    color: "text-blue-600",
+    badge: "🔴 고위험"
+  },
+  {
+    id: "mida",
+    name: "Midazolam",
+    nameKr: "미다졸람",
+    type: "진정제",
+    defaultAmount: 50,
+    defaultAmountUnit: "mg",
+    defaultVol: 50,
+    doseUnit: "mg/kg/hr",
+    step: 0.02,
+    maxAlert: 0.2,
+    color: "text-indigo-600",
+    badge: ""
+  },
+  {
+    id: "vaso",
+    name: "Vasopressin",
+    nameKr: "바소프레신",
+    type: "승압제",
+    defaultAmount: 20,
+    defaultAmountUnit: "U",
+    defaultVol: 100,
+    doseUnit: "U/min",
+    step: 0.01,
+    maxAlert: 0.04,
+    color: "text-purple-600",
+    badge: "⚠️ Salvage"
+  },
+  {
+    id: "dex",
+    name: "Dexmedetomidine",
+    nameKr: "덱스메데토미딘",
+    type: "진정제",
+    defaultAmount: 200,
+    defaultAmountUnit: "mcg",
+    defaultVol: 50,
+    doseUnit: "mcg/kg/hr",
+    step: 0.1,
+    maxAlert: 1.4,
+    color: "text-teal-600",
+    badge: ""
+  },
+  {
+    id: "remi",
+    name: "Remifentanil",
+    nameKr: "레미펜타닐",
+    type: "진통/진정",
+    defaultAmount: 2,
+    defaultAmountUnit: "mg",
+    defaultVol: 50,
+    doseUnit: "mcg/kg/min",
+    step: 0.025,
+    maxAlert: 0.2,
+    color: "text-pink-600",
+    badge: "🔴 고위험"
+  }
+];
+const drugDB = [
+  // 1. 순환기계용약
+  {
+    name: "Norepinephrine",
+    ko: "노르에피네프린",
+    category: "cardio",
+    categoryName: "순환기계",
+    kpicClass: "순환기계 > 혈관수축제(승압제)",
+    class: "승압제 / 혈관수축제",
+    highRisk: true,
+    lasa: "에피네프린(Epinephrine)과 혼동 주의",
+    desc: "급성 저혈압 및 심인성/패혈성 쇼크 시 말초혈관 수축을 통한 강력한 혈압 상승 목적",
+    diluent: "D5W 권장 (수액 산화 방지, NS도 가능하나 D5W 우선)",
+    compat: "알칼리성 약물(탄산수소나트륨 등)과 배합 금지, 혈관외유출(Extravasation) 시 괴사 위험(펜톨라민 국소침윤)",
+    badge: "🔴 고위험",
+    pregnancy: "DUR 임부금기 2등급 (자궁 혈류 감소로 태아 저산소증 초래 가능, 생명 위협 시 제한적 사용)",
+    pregGrade: 2
+  },
+  {
+    name: "Epinephrine",
+    ko: "에피네프린",
+    category: "cardio",
+    categoryName: "순환기계",
+    kpicClass: "순환기계 > 아드레날린 효능제",
+    class: "승압제 / 심폐소생",
+    highRisk: true,
+    lasa: "에페드린(Ephedrine), 노르에피네프린 혼동 주의",
+    desc: "심정지(CPR), 아나필락시스 쇼크, 중증 천식 발작 완화",
+    diluent: "NS, D5W",
+    compat: "알칼리성 용액에 급속히 불활성화되므로 혼합 금지, 심한 빈맥 및 부정맥 모니터링",
+    badge: "🔴 고위험",
+    pregnancy: "DUR 임부금기 2등급 (산모의 아나필락시스 및 심정지 등 응급 구명 상황에서만 필수 투여)",
+    pregGrade: 2
+  },
+  {
+    name: "Dopamine",
+    ko: "도파민",
+    category: "cardio",
+    categoryName: "순환기계",
+    kpicClass: "순환기계 > 강심제/승압제",
+    class: "승압제 / 강심제",
+    highRisk: true,
+    lasa: "도부타민(Dobutamine)과 명칭 혼동 주의",
+    desc: "쇼크, 심근경색으로 인한 핍뇨, 심부전 시 용량별 혈류 및 심수축력 개선",
+    diluent: "NS, D5W",
+    compat: "알칼리성 주사액(탄산수소나트륨) 배합 금기",
+    badge: "🔴 고위험"
+  },
+  {
+    name: "Dobutamine",
+    ko: "도부타민",
+    category: "cardio",
+    categoryName: "순환기계",
+    kpicClass: "순환기계 > 강심제(Beta-1 효능제)",
+    class: "강심제",
+    highRisk: true,
+    lasa: "도파민(Dopamine)과 명칭 혼동 주의",
+    desc: "급·만성 심부전, 심장 수술 후 심근 수축력 강화를 통한 심박출량 증가",
+    diluent: "NS, D5W",
+    compat: "헤파린, 탄산수소나트륨 등 알칼리성 제제 배합 금지",
+    badge: "🔴 고위험"
+  },
+  {
+    name: "Amiodarone",
+    ko: "아미오다론 (코다론)",
+    category: "cardio",
+    categoryName: "순환기계",
+    kpicClass: "순환기계 > 항부정맥제(Class III)",
+    class: "항부정맥제",
+    highRisk: true,
+    desc: "심실성 부정맥(VF/VT), 심방세동(AFib) 리듬 조절 및 전환",
+    diluent: "반드시 D5W 사용 (NS 혼합 시 침전 발생으로 절대 금기)",
+    compat: "PVC 용기 흡착 위험(유리병 또는 Non-PVC 수액백/라인 사용 필수), 전해질(QTc 연장) 감시",
+    badge: "🔴 고위험",
+    pregnancy: "DUR 임부금기 2등급 (태아 갑상선 기능저하증, 갑상선종 및 서맥 유발 위험)",
+    pregGrade: 2
+  },
+  {
+    name: "Nitroglycerin",
+    ko: "니트로글리세린 (NTG)",
+    category: "cardio",
+    categoryName: "순환기계",
+    kpicClass: "순환기계 > 혈관확장제(질산염계)",
+    class: "혈관확장제",
+    highRisk: false,
+    desc: "불안정 협심증, 급성 심근경색에 따른 좌심실부전, 수술 시 급성 고혈압 조절",
+    diluent: "D5W, NS",
+    compat: "일반 PVC 세트에 40~80% 흡착되므로 반드시 전용 Non-PVC 수액세트 사용 및 차광 필수",
+    badge: "⚠️ 차광/Non-PVC"
+  },
+  {
+    name: "Nicardipine",
+    ko: "니카르디핀 (페르디핀)",
+    category: "cardio",
+    categoryName: "순환기계",
+    kpicClass: "순환기계 > 칼슘채널차단제(CCB)",
+    class: "혈압강하제",
+    highRisk: false,
+    desc: "수술 전후 및 뇌혈관 질환에 따른 응급성 급성 고혈압의 신속한 조절",
+    diluent: "D5W, NS (최종 농도 0.1~0.2mg/mL 권장)",
+    compat: "말초정맥 투여 시 혈전성 정맥염 유발 위험이 높아 대정맥/중심정맥관 투여 또는 12시간마다 투여부위 교체 권장",
+    badge: ""
+  },
+  {
+    name: "Adenosine",
+    ko: "아데노신",
+    category: "cardio",
+    categoryName: "순환기계",
+    kpicClass: "순환기계 > 항부정맥제",
+    class: "항부정맥제",
+    highRisk: true,
+    desc: "발작성 심실상성 빈맥(PSVT)의 동방결절 리듬으로의 신속한 정상화 전환",
+    diluent: "원액 그대로 투여 (희석하지 않음)",
+    compat: "반감기가 10초 미만으로 매우 짧으므로 중심정맥에 가까운 큰 혈관에 Rapid IV Push 직후 20mL NS 급속 플러시 필수",
+    badge: "🔴 Rapid Push"
+  },
+  // 2. 신경계 및 진정/진통/근이완용약
+  {
+    name: "Propofol",
+    ko: "프로포폴",
+    category: "neuro",
+    categoryName: "신경/진정/진통",
+    kpicClass: "신경계 > 전신마취제 / 진정제",
+    class: "전신마취 / 진정제",
+    highRisk: true,
+    desc: "전신마취 유도 및 유지, 중환자실(ICU) 인공호흡 환자의 진정 (PRIS: 프로포폴 주입 증후군 주의)",
+    diluent: "원액 투여 (또는 필요시 D5W 최소 희석, NS 희석 금기)",
+    compat: "지질 유화액 제제로 미생물 증식 위험 극대화 - 전용 단독 투여라인 사용 및 12시간 내 잔여액 전량 폐기",
+    badge: "🔴 고위험"
+  },
+  {
+    name: "Midazolam",
+    ko: "미다졸람",
+    category: "neuro",
+    categoryName: "신경/진정/진통",
+    kpicClass: "신경계 > 벤조디아제핀계 진정제",
+    class: "최면진정제",
+    highRisk: false,
+    desc: "불안 완화, 수술 전 진정, ICU 기계환기 환자의 장·단기 진정",
+    diluent: "NS, D5W",
+    compat: "호흡억제 모니터링 필수, 길항제(Flumazenil) 즉시 준비, 알칼리 수액과 침전 형성 주의",
+    badge: "",
+    pregnancy: "DUR 임부금기 2등급 (임신 초기 기형 유발 위험 및 신생아 금단증후군/이완 유발)",
+    pregGrade: 2
+  },
+  {
+    name: "Remifentanil",
+    ko: "레미펜타닐 (울티바)",
+    category: "neuro",
+    categoryName: "신경/진정/진통",
+    kpicClass: "신경계 > 마약성 진통제(μ-opioid agonist)",
+    class: "마약성 진통제",
+    highRisk: true,
+    lasa: "펜타닐, 서펜타닐 혼동 주의",
+    desc: "마취 도입/유지 및 ICU 기계호흡 환자의 초단시간 통증 조절 및 진정",
+    diluent: "멸균주사용수 용해 후 NS, D5W 희석",
+    compat: "주입 중단 시 수분 내 약효 소실되므로 통증 반동 주의, 혈액제제와 동일 라인 주입 금지",
+    badge: "🔴 마약/고위험"
+  },
+  {
+    name: "Fentanyl",
+    ko: "펜타닐",
+    category: "neuro",
+    categoryName: "신경/진정/진통",
+    kpicClass: "신경계 > 마약성 진통제",
+    class: "마약성 진통제",
+    highRisk: true,
+    desc: "심한 급만성 통증, 수술 중/후 보조 진통 (모르핀의 50~100배 역가)",
+    diluent: "NS, D5W",
+    compat: "급속 주입 시 흉벽 강직(Chest wall rigidity) 및 호흡정지 위험, 길항제(Naloxone) 구비",
+    badge: "🔴 마약/고위험",
+    pregnancy: "DUR 임부금기 2등급 (태반 통과로 인한 신생아 호흡억제 및 장기 사용 시 금단증상 주의)",
+    pregGrade: 2
+  },
+  {
+    name: "Vecuronium",
+    ko: "베쿠로늄",
+    category: "neuro",
+    categoryName: "신경/진정/진통",
+    kpicClass: "근골격계/마취 > 비탈분극성 근이완제",
+    class: "근이완제(신경근차단)",
+    highRisk: true,
+    desc: "기관내삽관, 전신마취 시 골격근 이완 및 인공호흡 순응 유도",
+    diluent: "멸균주사용수로 완전 용해 후 NS, D5W 혼합",
+    compat: "의식 진정 없이 절대 단독 투여 금지! 반드시 자가호흡 정지 대비 인공호흡기 연결 환자에게만 투여",
+    badge: "🔴 고위험"
+  },
+  // 3. 항생물질 및 항균제
+  {
+    name: "Vancomycin",
+    ko: "반코마이신",
+    category: "anti",
+    categoryName: "항생물질",
+    kpicClass: "항병원체 > 글리코펩티드계 항생제",
+    class: "항생물질(MRSA)",
+    highRisk: true,
+    desc: "MRSA(메티실린 내성 포도구균), 중증 세균성 감염증, 위막성 대장염",
+    diluent: "NS, D5W (최종 농도 5mg/mL 이하 권장)",
+    compat: "급속 투여 시 히스타민 유리로 인한 레드맨 증후군(Red Man Syndrome) 및 쇼크 유발 -> 반드시 최소 60분 이상 서서히 주입, 신독성/이독성 예방 TDM 필수",
+    badge: "🔴 TDM필수"
+  },
+  {
+    name: "Ceftriaxone",
+    ko: "세프트리아손 (로세핀)",
+    category: "anti",
+    categoryName: "항생물질",
+    kpicClass: "항병원체 > 세팔로스포린계 (3세대)",
+    class: "항생물질",
+    highRisk: false,
+    desc: "폐렴, 뇌수막염, 요로감염, 복강내 감염 등 광범위 감염증",
+    diluent: "NS, D5W",
+    compat: "★치명적 금기: 칼슘 함유 수액(Hartmann 용액, 링거액, TPN 등)과 혼합 또는 동일 정맥라인 동시/연속 주입 시 칼슘-세프트리아손 불용성 침전 석출로 사망 위험",
+    badge: "⚠️ 칼슘혼합절대금기"
+  },
+  {
+    name: "Meropenem",
+    ko: "메로페넴",
+    category: "anti",
+    categoryName: "항생물질",
+    kpicClass: "항병원체 > 카바페넴계 항생제",
+    class: "광범위 항생제",
+    highRisk: false,
+    desc: "패혈증, 원내폐렴, 중증 복강내 감염 등 다제내성 그람음성균 감염증",
+    diluent: "NS, D5W (조제 후 실온 안정성이 낮으므로 즉시 투여)",
+    compat: "보통 30분~3시간에 걸쳐 점적 주입, 발작 병력 환자 주의 깊게 관찰",
+    badge: ""
+  },
+  {
+    name: "Piperacillin / Tazobactam",
+    ko: "피페라실린/타조박탐 (타조신)",
+    category: "anti",
+    categoryName: "항생물질",
+    kpicClass: "항병원체 > 페니실린 복합제",
+    class: "광범위 페니실린계",
+    highRisk: false,
+    desc: "녹농균(Pseudomonas aeruginosa) 감염, 원내폐렴, 복강내/비뇨기계 중증 감염",
+    diluent: "NS, D5W",
+    compat: "투여 전 반드시 피부반응검사(AST) 진행 필수! 아미노글리코사이드(토브라마이신 등)와 동일 용기 혼합 시 상호 불활성화",
+    badge: "💉 AST필수"
+  },
+  // 4. 이뇨/전해질/응급 및 호흡기/대사
+  {
+    name: "Potassium Chloride",
+    ko: "염화칼륨 (KCl)",
+    category: "resp_meta",
+    categoryName: "이뇨/전해질/응급",
+    kpicClass: "대사성의약품 > 무기질제제 (전해질 보정)",
+    class: "전해질 보충제",
+    highRisk: true,
+    desc: "저칼륨혈증(Hypokalemia)의 예방 및 교정",
+    diluent: "반드시 대용량 수액(NS, D5W 등)에 충분히 희석 혼합",
+    compat: "🔴 절대 정맥 직접 주사(Direct IV Push) 금지! (치명적 심정지 유발) 정맥 점적 시 최대 농도 40mEq/L, 투여속도 시간당 20mEq 이하 엄격 준수",
+    badge: "🔴 원액IV절대금기"
+  },
+  {
+    name: "Furosemide",
+    ko: "후로세미드 (라식스)",
+    category: "resp_meta",
+    categoryName: "이뇨/전해질/응급",
+    kpicClass: "비뇨생식기관 및 항문용약 > 루프 이뇨제",
+    class: "루프 이뇨제",
+    highRisk: false,
+    desc: "급·만성 심부전, 신부전, 간경변성 부종, 급성 폐부종의 체액 배출",
+    diluent: "NS 권장 (약알칼리성이므로 pH 5.5 이하 산성용액과 혼합 시 침전 발생)",
+    compat: "고용량 급속 정주시 영구적/일시적 청력 손실(이독성) 위험 있으므로 분당 4mg 이하 속도로 천천히 투여, 차광 보관",
+    badge: "⚠️ 이독성주의",
+    pregnancy: "DUR 임부금기 2등급 (태반 통과 및 양수량 감소 위험, 폐부종/심부전 등 필수 시 단기간)",
+    pregGrade: 2
+  },
+  {
+    name: "Regular Insulin",
+    ko: "속효성 인슐린 (RI / 휴물린 R)",
+    category: "resp_meta",
+    categoryName: "이뇨/전해질/응급",
+    kpicClass: "대사성의약품 > 당뇨병용제",
+    class: "혈당강하제 (속효성)",
+    highRisk: true,
+    lasa: "초속효성, 혼합형, 지속형 인슐린과 명칭/단위 혼동 주의",
+    desc: "당뇨병성 케톤산증(DKA), 고삼투압성 고혈당 상태(HHS), 고칼륨혈증 응급치료(Glucose+RI 병용)",
+    diluent: "NS 권장 (100단위/100mL 등 1:1 농도로 인퓨전 펌프 주입)",
+    compat: "플라스틱 수액백 및 튜브에 흡착되므로 주입 시작 시 초기 50mL 버린 후 주입, 매시간 혈당(BST) 모니터링",
+    badge: "🔴 고위험"
+  },
+  {
+    name: "Atropine",
+    ko: "아트로핀",
+    category: "resp_meta",
+    categoryName: "이뇨/전해질/응급",
+    kpicClass: "신경계/자율신경 > 항콜린제 (부교감신경차단제)",
+    class: "부교감신경차단제",
+    highRisk: false,
+    desc: "동성 서맥, 방실전도장애, 마취전투약(분비물 억제), 유기인계 살충제 중독 시 해독",
+    diluent: "원액 IV 급속 투여 (또는 NS 희석)",
+    compat: "0.5mg 미만 소량 투여 시 오히려 중추성 서맥을 악화시킬 수 있으므로 성인 최소 0.5mg 이상 투여, 구갈/동공산대 모니터링",
+    badge: ""
+  },
+  // 5. 대표적 임부금기 약물 (DUR 1등급 & 2등급)
+  {
+    name: "Isotretinoin",
+    ko: "이소트레티노인 (로아큐탄 / 이소티논)",
+    category: "preg",
+    categoryName: "임부금기",
+    kpicClass: "피부질환용제 > 여드름 치료제 (비타민A 유도체)",
+    class: "여드름 치료제",
+    highRisk: true,
+    desc: "중증 난치성 결절성 여드름 치료. 투여 중 및 투여 종료 후 최소 1개월간 피임 필수 (임신예방프로그램 대상)",
+    diluent: "경구제 (식후 복용)",
+    compat: "임신부 및 임신 가능성이 있는 여성 투여 절대 금기 (치명적 최기형성)",
+    badge: "🔴 임부금기 1등급",
+    pregnancy: "DUR 임부금기 1등급 (절대금기): 태아 중추신경계, 안면(소이증), 심혈관계, 흉선 기형 등 극심한 최기형성 유발 및 자연유산율 급증. 투약 전·중 및 복용 중단 후 최소 1개월 이상 철저한 이중 피임 필수.",
+    pregGrade: 1
+  },
+  {
+    name: "Warfarin",
+    ko: "와파린",
+    category: "preg",
+    categoryName: "임부금기",
+    kpicClass: "혈액응고저지제 > 비타민K 길항제",
+    class: "항응고제",
+    highRisk: true,
+    desc: "정맥혈전증, 폐색전증, 심방세동 및 심장판막치환술 환자의 혈전색전증 예방 및 치료",
+    diluent: "경구제",
+    compat: "비타민K 함유 음식(녹색채소 등) 및 다수 약물과의 상호작용 주의 (INR 주기적 모니터링)",
+    badge: "🔴 임부금기 1등급",
+    pregnancy: "DUR 임부금기 1등급 (절대금기): 태아 와파린 증후군(Fetal Warfarin Syndrome - 비저형성증, 점상연골형성이상), 소두증, 실명, 두개내 출혈 유발. 임신 중 항응고 요법 필요 시 헤파린/LMWH으로 반드시 대체.",
+    pregGrade: 1
+  },
+  {
+    name: "Methotrexate (MTX)",
+    ko: "메토트렉세이트",
+    category: "preg",
+    categoryName: "임부금기",
+    kpicClass: "항악성종양제 / 면역억제제 > 엽산 길항제",
+    class: "항암제 / 면역억제제",
+    highRisk: true,
+    desc: "급성 백혈병, 융모상피암, 중증 류마티스 관절염 및 건선, 자궁외임신 약물치료",
+    diluent: "PO / IV / IM",
+    compat: "골수억제, 간독성, 폐독성 감시 필요. 류마티스 처방 시 반드시 주 1회 용법 엄수",
+    badge: "🔴 임부금기 1등급",
+    pregnancy: "DUR 임부금기 1등급 (절대금기): 강력한 엽산 대사 저해로 태아 사망, 유산 및 태아 아미노프테린 증후군(두개골 발손상, 뇌류, 안면 두개기형, 사지 기형 등) 초래. 가임기 여성 처방 시 임신 여부 확인 필수.",
+    pregGrade: 1
+  },
+  {
+    name: "Losartan",
+    ko: "로사르탄 (코자)",
+    category: "preg",
+    categoryName: "임부금기",
+    kpicClass: "순환기계 > 안지오텐신II 수용체 차단제(ARB)",
+    class: "혈압강하제",
+    highRisk: false,
+    desc: "본태성 고혈압, 당뇨병성 신증 환자의 신장보호",
+    diluent: "경구제",
+    compat: "임신이 확인되면 즉시 투여를 중단하고 다른 계열의 강압제(라베탈롤, 메틸도파 등)로 전환 필수",
+    badge: "🔴 임부금기 1등급",
+    pregnancy: "DUR 임부금기 1등급 (임신 2~3분기 치명적): 레닌-안지오텐신계 저해로 태아 신기능 손상, 신부전, 양수과소증(Oligohydramnios), 두개골 형성부전, 폐발육부전 및 자궁내 사망 유발.",
+    pregGrade: 1
+  },
+  {
+    name: "Atorvastatin",
+    ko: "아토르바스타틴 (리피토)",
+    category: "preg",
+    categoryName: "임부금기",
+    kpicClass: "고지혈증치료제 > HMG-CoA 환원효소 억제제 (Statin)",
+    class: "지질저하제",
+    highRisk: false,
+    desc: "원발성 고콜레스테롤혈증, 복합형 이상지질혈증 및 관상동맥질환 심혈관 위험 감소",
+    diluent: "경구제",
+    compat: "횡문근융해증 모니터링 (근육통, CPK 상승 확인), 자몽주스 병용 섭취 주의",
+    badge: "🔴 임부금기 1등급",
+    pregnancy: "DUR 임부금기 1등급 (절대금기): 콜레스테롤은 태아 세포막 형성, 호르몬 합성 및 신경계·골격계 발달에 필수적인 요소. HMG-CoA 합성 억제 시 태아 골격계 기형, 척추·사지 이상 및 발달 지연 치명적 손상.",
+    pregGrade: 1
+  },
+  {
+    name: "Thalidomide",
+    ko: "탈리도마이드",
+    category: "preg",
+    categoryName: "임부금기",
+    kpicClass: "면역조절제 / 항악성종양제",
+    class: "면역조절항암제",
+    highRisk: true,
+    desc: "다발골수종 치료제. 역사상 최악의 기형아 사태 유발 약물로 현재는 엄격한 관리 프로그램 하에만 투여 허가",
+    diluent: "경구제",
+    compat: "남녀 환자 모두 엄격한 피임 프로그램 이행 의무",
+    badge: "🔴 임부금기 1등급",
+    pregnancy: "DUR 임부금기 1등급 (절대금기): 단 1회의 복용으로도 태아의 사지단축증(해표지증, Phocomelia: 팔다리가 짧아지거나 결손), 귀/눈 결손, 선천성 심장 기형 유발. 대표적 최기형성 약물.",
+    pregGrade: 1
+  },
+  {
+    name: "Misoprostol",
+    ko: "미소프로스톨 (싸이토텍)",
+    category: "preg",
+    categoryName: "임부금기",
+    kpicClass: "소화기관용약 > 프로스타글란딘 E1 유도체",
+    class: "소화성궤양 / 자궁수축제",
+    highRisk: true,
+    desc: "NSAIDs 투여로 인한 위십이지장 궤양 예방 및 치료. 산과 영역에서는 통제된 환경에서 분만유도 목적으로 특수 사용되기도 함",
+    diluent: "경구제 / 질정",
+    compat: "임신 중 위장관 궤양 치료 목적 투여 절대 금기",
+    badge: "🔴 임부금기 1등급",
+    pregnancy: "DUR 임부금기 1등급 (절대금기): 강력한 자궁 수축을 유발하여 유산, 조산, 자궁 파열 및 뫼비우스 증후군(Moebius syndrome: 안면신경마비), 사지 결손 기형 초래. 위궤양 치료 목적 투여 절대 금기.",
+    pregGrade: 1
+  },
+  {
+    name: "Ibuprofen",
+    ko: "이부프로펜 (부루펜 / 애드빌)",
+    category: "preg",
+    categoryName: "임부금기",
+    kpicClass: "해열·진통·소염제 > 프로피온산계 NSAIDs",
+    class: "비스테로이드성 소염진통제",
+    highRisk: false,
+    desc: "관절염, 근육통, 두통 등 통증 및 염증 완화, 해열",
+    diluent: "경구제",
+    compat: "위장관 출혈 위험, 신장애 환자 주의",
+    badge: "⚠️ 임부금기 2등급",
+    pregnancy: "DUR 임부금기 2등급 (특히 임신 20주 이후 및 임신 3기): 태아 신기능 장애로 인한 양수과소증 및 임신 말기 투여 시 태아 동맥관 조기 폐쇄(Premature closure of ductus arteriosus), 지속성 폐고혈압 유발. 해열·진통 시 아세트아미노펜 권장.",
+    pregGrade: 2
+  }
+];
+const medicalTermsDB = [
+  // 1. 투약 및 처방 관련 약어 (Medication & Orders)
+  {
+    term: "NPO",
+    full: "Non Per Os (Nothing by mouth)",
+    ko: "금식",
+    desc: "물, 음식, 약물을 포함하여 구강으로 아무것도 섭취하지 않는 상태. 수술 전, 위장관 검사 전, 장폐색 환자에게 처방.",
+    category: "order",
+    categoryName: "투약/처방"
+  },
+  {
+    term: "PRN",
+    full: "Pro Re Nata (As needed)",
+    ko: "필요시 투약",
+    desc: "환자 상태 변화 및 통증, 발열, 오심 등의 특정 증상 발현 시 정해진 용량과 투여 간격에 따라 투약.",
+    category: "order",
+    categoryName: "투약/처방"
+  },
+  {
+    term: "PO",
+    full: "Per Os (By mouth)",
+    ko: "경구 투여",
+    desc: "입을 통하여 약물을 삼키거나 복용하는 투약 경로.",
+    category: "order",
+    categoryName: "투약/처방"
+  },
+  {
+    term: "IV",
+    full: "Intravenous",
+    ko: "정맥주사",
+    desc: "약물이나 수액을 정맥 혈관 내로 직접 점적(Infusion) 또는 일시 주입(Bolus)하여 신속한 효과를 도모.",
+    category: "order",
+    categoryName: "투약/처방"
+  },
+  {
+    term: "IM",
+    full: "Intramuscular",
+    ko: "근육주사",
+    desc: "혈관이 풍부한 근육 조직(둔부 복면, 삼각근 등)으로 약물을 주입하여 흡수를 유도하는 투여 경로.",
+    category: "order",
+    categoryName: "투약/처방"
+  },
+  {
+    term: "SC",
+    full: "Subcutaneous",
+    ko: "피하주사",
+    desc: "피하 지방 조직으로 주입 (인슐린, 헤파린, 저분자헤파린 등). 주사 부위를 문지르지 않고 지혈.",
+    category: "order",
+    categoryName: "투약/처방"
+  },
+  {
+    term: "ID",
+    full: "Intradermal",
+    ko: "피내주사",
+    desc: "표피와 진피 사이에 약물을 소량(0.02~0.05mL) 주입하여 팽진을 형성하는 방법 (AST 피부반응검사, 결핵 투베르쿨린 검사).",
+    category: "order",
+    categoryName: "투약/처방"
+  },
+  {
+    term: "SL",
+    full: "Sublingual",
+    ko: "설하 투여",
+    desc: "혀 밑 점막으로 약물을 녹여 간초회통과효과를 우회하고 신속 흡수 (예: 협심증 발작 시 니트로글리세린 설하정).",
+    category: "order",
+    categoryName: "투약/처방"
+  },
+  {
+    term: "IVP",
+    full: "Intravenous Push (Bolus)",
+    ko: "정맥 일시주사",
+    desc: "주사기로 약물을 정맥 라인에 수초~수분 이내로 직접 빠르게 밀어 넣는 급속 투약 방법.",
+    category: "order",
+    categoryName: "투약/처방"
+  },
+  {
+    term: "IVPB",
+    full: "Intravenous Piggyback",
+    ko: "정맥 측관주입",
+    desc: "기존 메인 수액 라인의 상부 Y-포트에 소용량 약물 수액백(50~100mL 항생제 등)을 연결하여 간헐 주입하는 방식.",
+    category: "order",
+    categoryName: "투약/처방"
+  },
+  {
+    term: "q.d.",
+    full: "Quaque die (Every day)",
+    ko: "하루 1회",
+    desc: "매일 일정한 시간(통상 아침 또는 지정 시각)에 1회 투약.",
+    category: "order",
+    categoryName: "투약/처방"
+  },
+  {
+    term: "b.i.d.",
+    full: "Bis in die (Twice a day)",
+    ko: "하루 2회",
+    desc: "매일 12시간 간격 또는 아침/저녁 2회 규칙적 투약.",
+    category: "order",
+    categoryName: "투약/처방"
+  },
+  {
+    term: "t.i.d.",
+    full: "Ter in die (Three times a day)",
+    ko: "하루 3회",
+    desc: "매일 8시간 간격 또는 아침/점심/저녁 식후 3회 투약.",
+    category: "order",
+    categoryName: "투약/처방"
+  },
+  {
+    term: "q.i.d.",
+    full: "Quater in die (Four times a day)",
+    ko: "하루 4회",
+    desc: "매일 6시간 간격으로 24시간 동안 균등하게 4회 투약.",
+    category: "order",
+    categoryName: "투약/처방"
+  },
+  {
+    term: "q.o.d.",
+    full: "Quaque altera die (Every other day)",
+    ko: "격일 투여",
+    desc: "하루 걸러 이틀에 한 번씩 투약 (오인 위험이 있어 공식 기록 시 every other day 권장).",
+    category: "order",
+    categoryName: "투약/처방"
+  },
+  {
+    term: "q.h.",
+    full: "Quaque hora (Every hour)",
+    ko: "매 시간마다",
+    desc: "매 1시간마다 반복 측정 또는 투약 (q2h: 2시간마다, q4h: 4시간마다, q8h: 8시간마다).",
+    category: "order",
+    categoryName: "투약/처방"
+  },
+  {
+    term: "h.s.",
+    full: "Hora somni (At bedtime)",
+    ko: "취침 전 투여",
+    desc: "잠들기 직전 투약 (수면제, 지질강하제, 야간 위산분비억제제 등).",
+    category: "order",
+    categoryName: "투약/처방"
+  },
+  {
+    term: "a.c.",
+    full: "Ante cibum (Before meals)",
+    ko: "식전 투여",
+    desc: "식사 전 30분~1시간 전에 복용하여 흡수율 증대 또는 식후 혈당/위산 조절 목적.",
+    category: "order",
+    categoryName: "투약/처방"
+  },
+  {
+    term: "p.c.",
+    full: "Post cibum (After meals)",
+    ko: "식후 투여",
+    desc: "식사 직후 또는 식후 30분에 복용하여 위장 장애 감소 및 흡수 증진.",
+    category: "order",
+    categoryName: "투약/처방"
+  },
+  {
+    term: "Stat",
+    full: "Statim (Immediately)",
+    ko: "즉시 투여",
+    desc: "처방 확인 즉시 지체 없이 1회 투약해야 하는 최응급 오더.",
+    category: "order",
+    categoryName: "투약/처방"
+  },
+  {
+    term: "D/C",
+    full: "Discontinue",
+    ko: "중단, 처방취소",
+    desc: "현재 처방된 약물이나 치료 처치를 중단 또는 취소함.",
+    category: "order",
+    categoryName: "투약/처방"
+  },
+  {
+    term: "Hold",
+    full: "Hold order",
+    ko: "일시 보류",
+    desc: "혈압 저하, 서맥, 검사 예정 등의 사유로 다음 지시가 있을 때까지 약물 투약을 잠시 멈춤.",
+    category: "order",
+    categoryName: "투약/처방"
+  },
+  {
+    term: "TKO / KVO",
+    full: "To Keep Open / Keep Vein Open",
+    ko: "정맥로 유지",
+    desc: "응급 투약로를 확보하기 위해 수액을 시간당 10~20mL 내외의 최소 속도로 점적 유지.",
+    category: "order",
+    categoryName: "투약/처방"
+  },
+  {
+    term: "gtt",
+    full: "Guttae (Drops)",
+    ko: "적적, 방울 수",
+    desc: "수액의 방울 단위. 통상 성인용 세트 기준 20 gtt = 1 mL.",
+    category: "order",
+    categoryName: "투약/처방"
+  },
+  {
+    term: "TDM",
+    full: "Therapeutic Drug Monitoring",
+    ko: "치료적 약물농도 감시",
+    desc: "치료역이 좁고 독성 위험이 높은 약물(반코마이신, 아미카신, 디곡신 등)의 혈중 농도를 모니터링하여 최적 용량을 산출.",
+    category: "order",
+    categoryName: "투약/처방"
+  },
+  // 2. 의무기록 및 임상 사정 (Records & Assessment)
+  {
+    term: "Dx",
+    full: "Diagnosis",
+    ko: "진단",
+    desc: "환자의 증상, 병력, 진찰 소견 및 각종 검사 결과를 종합하여 판정한 질병명.",
+    category: "record",
+    categoryName: "의무기록/사정"
+  },
+  {
+    term: "Tx",
+    full: "Treatment",
+    ko: "치료, 처치",
+    desc: "질병이나 상해를 치유하기 위한 의학적 치료 행위, 수술, 시술 및 약물 투약 전반.",
+    category: "record",
+    categoryName: "의무기록/사정"
+  },
+  {
+    term: "Hx",
+    full: "History",
+    ko: "병력, 과거력",
+    desc: "환자가 지금까지 겪어온 질병, 수술 이력, 알레르기 및 가족력 전반의 의료 기록.",
+    category: "record",
+    categoryName: "의무기록/사정"
+  },
+  {
+    term: "Sx",
+    full: "Symptom",
+    ko: "증상",
+    desc: "환자가 질병으로 인해 주관적으로 자각하고 느끼는 신체적 이상 반응 (통증, 오심, 어지러움 등).",
+    category: "record",
+    categoryName: "의무기록/사정"
+  },
+  {
+    term: "CC",
+    full: "Chief Complaint",
+    ko: "주호소",
+    desc: "환자가 병원을 방문하게 된 가장 주된 이유나 가장 고통스럽게 호소하는 핵심 증상.",
+    category: "record",
+    categoryName: "의무기록/사정"
+  },
+  {
+    term: "PI",
+    full: "Present Illness",
+    ko: "현병력",
+    desc: "주호소가 언제, 어떤 상황에서 발병하여 현재까지 어떻게 진행되었는지를 시계열로 기술한 기록.",
+    category: "record",
+    categoryName: "의무기록/사정"
+  },
+  {
+    term: "PHx",
+    full: "Past History",
+    ko: "과거병력",
+    desc: "과거에 앓았던 기저질환(고혈압, 당뇨, 간염, 결핵 등), 수술 및 입원 이력, 수혈력.",
+    category: "record",
+    categoryName: "의무기록/사정"
+  },
+  {
+    term: "FHx",
+    full: "Family History",
+    ko: "가족력",
+    desc: "부모, 형제, 자녀 등 직계 가족의 유전성 질환(암, 심혈관질환, 당뇨, 뇌졸중 등) 내력.",
+    category: "record",
+    categoryName: "의무기록/사정"
+  },
+  {
+    term: "ROS",
+    full: "Review of Systems",
+    ko: "계통별 문진",
+    desc: "신체 각 계통(호흡기계, 순환기계, 소화기계, 신경계 등) 전반의 이상 유무를 체계적으로 질문 확인.",
+    category: "record",
+    categoryName: "의무기록/사정"
+  },
+  {
+    term: "PE / P/Ex",
+    full: "Physical Examination",
+    ko: "신체검진",
+    desc: "의료진이 시진, 촉진, 타진, 청진 등을 통해 객관적으로 신체 이상 징후(Sign)를 확인하는 행위.",
+    category: "record",
+    categoryName: "의무기록/사정"
+  },
+  {
+    term: "Imp",
+    full: "Impression",
+    ko: "추정진단",
+    desc: "진료 초기 단계에서 병력과 진찰 소견을 기반으로 가장 가능성이 높다고 추정한 잠정 진단.",
+    category: "record",
+    categoryName: "의무기록/사정"
+  },
+  {
+    term: "R/O",
+    full: "Rule Out",
+    ko: "배제진단 / 의증",
+    desc: "특정 질환의 가능성을 의심하여 추가 검사를 통해 확인하거나 배제해야 함을 명시 (예: R/O Appendicitis).",
+    category: "record",
+    categoryName: "의무기록/사정"
+  },
+  {
+    term: "F/U",
+    full: "Follow Up",
+    ko: "추적관찰, 재진",
+    desc: "치료, 투약 또는 수술 후 경과 관찰 및 검사 결과 재확인을 위한 지속적 추적 방문.",
+    category: "record",
+    categoryName: "의무기록/사정"
+  },
+  {
+    term: "C/O",
+    full: "Complains Of",
+    ko: "~을 호소하다",
+    desc: "환자가 특정 통증이나 불편감을 말로 표현하여 호소하는 내용을 기록할 때 사용 (예: C/O Chest pain).",
+    category: "record",
+    categoryName: "의무기록/사정"
+  },
+  {
+    term: "WNL",
+    full: "Within Normal Limits",
+    ko: "정상 범위 내",
+    desc: "검사 수치나 진찰 소견이 의학적 기준 정상치 범위 내에 있음을 의미.",
+    category: "record",
+    categoryName: "의무기록/사정"
+  },
+  {
+    term: "V/S",
+    full: "Vital Signs",
+    ko: "활력징후",
+    desc: "혈압(BP), 맥박(PR/HR), 호흡수(RR), 체온(BT) 등 환자의 생명 유지 상태를 나타내는 가장 기본적 지표.",
+    category: "record",
+    categoryName: "의무기록/사정"
+  },
+  {
+    term: "SBP / DBP",
+    full: "Systolic / Diastolic Blood Pressure",
+    ko: "수축기 / 이완기 혈압",
+    desc: "심장이 수축할 때의 최고 혈압과 이완될 때의 최저 혈압 (기준: 120/80 mmHg 미만 정상).",
+    category: "record",
+    categoryName: "의무기록/사정"
+  },
+  {
+    term: "SpO2",
+    full: "Saturation of Percutaneous Oxygen",
+    ko: "말초산소포화도",
+    desc: "맥박산소측정기로 측정한 동맥혈 헤모글로빈의 산소 포화 비율 (정상: 95~100%).",
+    category: "record",
+    categoryName: "의무기록/사정"
+  },
+  {
+    term: "I&O",
+    full: "Intake and Output",
+    ko: "섭취량과 배설량",
+    desc: "환자의 체액 균형(Fluid Balance) 평가를 위해 24시간 동안 투여된 수액/식이량과 소변/배액량을 기록.",
+    category: "record",
+    categoryName: "의무기록/사정"
+  },
+  {
+    term: "BSA",
+    full: "Body Surface Area",
+    ko: "체표면적",
+    desc: "환자의 키와 체중으로 계산한 체표면적(m²). 항암제 용량 계산 및 정밀 수액 처방의 기준.",
+    category: "record",
+    categoryName: "의무기록/사정"
+  },
+  // 3. 중환자실 / 응급 / 임상 처치 (ICU, ER & Procedures)
+  {
+    term: "CPR",
+    full: "Cardiopulmonary Resuscitation",
+    ko: "심폐소생술",
+    desc: "심장마비(Cardiac Arrest) 환자에게 가슴압박과 인공호흡을 실시하여 뇌와 주요 장기에 혈류를 공급하는 응급처치.",
+    category: "icu_er",
+    categoryName: "중환자/응급"
+  },
+  {
+    term: "DNR",
+    full: "Do Not Resuscitate",
+    ko: "심폐소생술 거부",
+    desc: "말기 환자 및 보호자의 사전 서면 동의에 따라 심정지 발생 시 심폐소생술을 시행하지 않는 연명의료 결정.",
+    category: "icu_er",
+    categoryName: "중환자/응급"
+  },
+  {
+    term: "DNI",
+    full: "Do Not Intubate",
+    ko: "기관내삽관 거부",
+    desc: "약물 치료는 지속하되 인공호흡기 연결을 위한 침습적 기관내삽관은 거부하는 연명의료 서약.",
+    category: "icu_er",
+    categoryName: "중환자/응급"
+  },
+  {
+    term: "Defib",
+    full: "Defibrillation",
+    ko: "제세동, 전기충격",
+    desc: "심실세동(VF)이나 맥박 없는 심실빈맥(pVT) 발생 시 강한 전기 충격을 주어 정상 동방결절 리듬으로 회복시키는 처치.",
+    category: "icu_er",
+    categoryName: "중환자/응급"
+  },
+  {
+    term: "Intubation",
+    full: "Endotracheal Intubation",
+    ko: "기관내삽관",
+    desc: "기도 유지, 호흡부전 및 전신마취를 위해 후두경을 이용해 구강을 통해 기관(Trachea) 내부로 튜브를 거치.",
+    category: "icu_er",
+    categoryName: "중환자/응급"
+  },
+  {
+    term: "Extubation",
+    full: "Endotracheal Extubation",
+    ko: "기관발관",
+    desc: "환자의 자가호흡 능력이 회복되고 가스교환이 안정되어 삽입되어 있던 기관내튜브를 제거하는 과정.",
+    category: "icu_er",
+    categoryName: "중환자/응급"
+  },
+  {
+    term: "Tracheostomy",
+    full: "Tracheostomy",
+    ko: "기관절개술",
+    desc: "장기 인공호흡기 치료가 필요하거나 상기도 폐쇄가 있는 환자의 목 앞부분 기도를 외과적으로 절개하여 튜브를 거치.",
+    category: "icu_er",
+    categoryName: "중환자/응급"
+  },
+  {
+    term: "C-line / CVC",
+    full: "Central Venous Catheter",
+    ko: "중심정맥관",
+    desc: "내경정맥, 쇄골하정맥 또는 대퇴정맥을 통해 상대정맥에 거치하는 카테터. 고농도 수액, 승압제 주입 및 CVP 측정에 사용.",
+    category: "icu_er",
+    categoryName: "중환자/응급"
+  },
+  {
+    term: "PICC",
+    full: "Peripherally Inserted Central Catheter",
+    ko: "말초삽입 중심정맥관",
+    desc: "팔의 말초정맥(상완정맥 등)을 천자하여 상대정맥까지 진입시키는 중심정맥관. 장기 항생제 및 TPN 주입에 적합.",
+    category: "icu_er",
+    categoryName: "중환자/응급"
+  },
+  {
+    term: "A-line",
+    full: "Arterial Line",
+    ko: "동맥관",
+    desc: "요골동맥(Radial a.) 등에 도관을 거치하여 실시간 침습적 동맥혈압(ABP)을 모니터링하고 잦은 ABGA 채혈을 수행.",
+    category: "icu_er",
+    categoryName: "중환자/응급"
+  },
+  {
+    term: "CVP",
+    full: "Central Venous Pressure",
+    ko: "중심정맥압",
+    desc: "우심방 부근의 대정맥 압력(정상: 2~8 mmHg 또는 5~10 cmH2O). 순환 혈액량 및 우심실 전부하(Preload)의 지표.",
+    category: "icu_er",
+    categoryName: "중환자/응급"
+  },
+  {
+    term: "MAP",
+    full: "Mean Arterial Pressure",
+    ko: "평균동맥압",
+    desc: "주요 장기(뇌, 신장) 관류를 유지하는 평균 혈압. 계산 공식: [SBP + (2 × DBP)] / 3 (목표: 보통 65 mmHg 이상).",
+    category: "icu_er",
+    categoryName: "중환자/응급"
+  },
+  {
+    term: "ICP",
+    full: "Intracranial Pressure",
+    ko: "두개내압",
+    desc: "두개강 내부의 압력(정상: 5~15 mmHg). 뇌출혈, 뇌부종 시 상승하며 20 mmHg 초과 시 뇌허혈 및 뇌헤르니아 위험.",
+    category: "icu_er",
+    categoryName: "중환자/응급"
+  },
+  {
+    term: "GCS",
+    full: "Glasgow Coma Scale",
+    ko: "글래스고 혼수 척도",
+    desc: "눈뜨기(E, 4점), 언어반응(V, 5점), 운동반응(M, 6점)을 종합하여 의식 수준을 3~15점으로 정량화한 평가 척도.",
+    category: "icu_er",
+    categoryName: "중환자/응급"
+  },
+  {
+    term: "LOC",
+    full: "Level of Consciousness",
+    ko: "의식 수준",
+    desc: "환자의 각성 및 인지 상태 단계: 명료(Alert) > 기면(Drowsy) > 혼미(Stupor) > 반혼수(Semicoma) > 혼수(Coma).",
+    category: "icu_er",
+    categoryName: "중환자/응급"
+  },
+  {
+    term: "Foley",
+    full: "Foley Catheter (Indwelling urinary catheter)",
+    ko: "유치도뇨관",
+    desc: "방광 내에 풍선(Balloon)을 팽창시켜 지속적으로 소변을 배출시키고 시간당 배뇨량(U/O)을 측정하는 카테터.",
+    category: "icu_er",
+    categoryName: "중환자/응급"
+  },
+  {
+    term: "L-tube",
+    full: "Levin Tube (Nasogastric Tube)",
+    ko: "비위관",
+    desc: "코를 통해 위장 내로 삽입하는 튜브. 장내 영양액 공급(Gavage) 또는 위 내용물 감압 및 세척(Lavage) 목적.",
+    category: "icu_er",
+    categoryName: "중환자/응급"
+  },
+  {
+    term: "CTD",
+    full: "Chest Tube Drainage",
+    ko: "흉관배액술",
+    desc: "기흉, 혈흉, 늑막삼출 시 흉막강 내 공기나 체액을 배출시켜 폐의 재팽창을 도모하는 시술.",
+    category: "icu_er",
+    categoryName: "중환자/응급"
+  },
+  {
+    term: "PCA",
+    full: "Patient Controlled Analgesia",
+    ko: "자가통증조절장치",
+    desc: "수술 후 환자가 통증을 느낄 때 버튼을 눌러 정해진 안전 용량의 마약성 진통제를 정맥 내로 자가 투여하는 펌프.",
+    category: "icu_er",
+    categoryName: "중환자/응급"
+  },
+  {
+    term: "CRRT",
+    full: "Continuous Renal Replacement Therapy",
+    ko: "지속적 신대체요법",
+    desc: "혈역학적으로 불안정한 급성 신부전 중환자에게 24시간 동안 지속적으로 수분과 노폐물을 완만하게 걸러내는 특수 투석.",
+    category: "icu_er",
+    categoryName: "중환자/응급"
+  },
+  {
+    term: "ECMO",
+    full: "Extracorporeal Membrane Oxygenation",
+    ko: "체외막산소공급기",
+    desc: "기존 치료에 반응하지 않는 중증 심부전(VA 모드) 또는 호흡부전(VV 모드) 시 몸 밖에서 혈액에 산소를 공급하는 인공심폐장치.",
+    category: "icu_er",
+    categoryName: "중환자/응급"
+  },
+  // 4. 혈액 및 진단검사 (Lab & Diagnostics)
+  {
+    term: "CBC",
+    full: "Complete Blood Count",
+    ko: "일반혈액검사",
+    desc: "적혈구, 백혈구, 혈소판 수치, 혈색소(Hb), 혈구용적률(Hct) 등을 측정하여 빈혈, 염증, 혈소판 감소증을 평가.",
+    category: "lab",
+    categoryName: "혈액/진단검사"
+  },
+  {
+    term: "WBC",
+    full: "White Blood Cell",
+    ko: "백혈구",
+    desc: "체내 면역 및 감염 방어 세포 (정상: 4,000~10,000 /μL). 세균 감염 시 급격히 상승, 백혈병 또는 골수억제 시 저하.",
+    category: "lab",
+    categoryName: "혈액/진단검사"
+  },
+  {
+    term: "Hb / Hgb",
+    full: "Hemoglobin",
+    ko: "혈색소, 헤모글로빈",
+    desc: "적혈구 내 산소 운반 단백질 (정상: 성인 남성 13~18 g/dL, 여성 12~16 g/dL). 7~8 g/dL 이하 시 농축적혈구 수혈 고려.",
+    category: "lab",
+    categoryName: "혈액/진단검사"
+  },
+  {
+    term: "Plt",
+    full: "Platelet",
+    ko: "혈소판",
+    desc: "혈액 응고 및 지혈 담당 (정상: 15만~45만 /μL). 2만 이하 시 자연 출혈 위험 급증하므로 수혈 필요.",
+    category: "lab",
+    categoryName: "혈액/진단검사"
+  },
+  {
+    term: "ANC",
+    full: "Absolute Neutrophil Count",
+    ko: "절대호중구수",
+    desc: "항암화학요법 중 감염 위험 평가 지표 (WBC × 호중구 비율). 500 /μL 미만 시 호중구감소성 발열 고위험 격리 대상.",
+    category: "lab",
+    categoryName: "혈액/진단검사"
+  },
+  {
+    term: "CRP",
+    full: "C-Reactive Protein",
+    ko: "C-반응성 단백",
+    desc: "체내 급성 감염 및 염증 발생 시 간에서 생성되는 급성기 반응 물질 (정상: 0.5 mg/dL 이하). 염증 호전 지표.",
+    category: "lab",
+    categoryName: "혈액/진단검사"
+  },
+  {
+    term: "ESR",
+    full: "Erythrocyte Sedimentation Rate",
+    ko: "적혈구침강속도",
+    desc: "혈액 내 적혈구가 침강하는 속도 (정상: 0~20 mm/hr). 만성 염증, 자가면역질환, 악성종양에서 상승.",
+    category: "lab",
+    categoryName: "혈액/진단검사"
+  },
+  {
+    term: "PT / INR",
+    full: "Prothrombin Time / International Normalized Ratio",
+    ko: "프로트롬빈 시간",
+    desc: "외인성 혈액 응고 체계 평가. 와파린 복용 환자의 항응고 효과 모니터링 기준 (일반적 치료 목표 INR: 2.0~3.0).",
+    category: "lab",
+    categoryName: "혈액/진단검사"
+  },
+  {
+    term: "aPTT",
+    full: "Activated Partial Thromboplastin Time",
+    ko: "활성화 부분트롬보플라스틴 시간",
+    desc: "내인성 혈액 응고 체계 평가 (정상: 25~35초). 헤파린(Heparin) 투여 시 약효 모니터링의 핵심 지표.",
+    category: "lab",
+    categoryName: "혈액/진단검사"
+  },
+  {
+    term: "BUN",
+    full: "Blood Urea Nitrogen",
+    ko: "혈액요소질소",
+    desc: "단백질 대사 산물 (정상: 10~20 mg/dL). 신기능 장애, 탈수, 위장관 출혈, 고단백 식이 시 상승.",
+    category: "lab",
+    categoryName: "혈액/진단검사"
+  },
+  {
+    term: "Cr",
+    full: "Serum Creatinine",
+    ko: "혈청 크레아티닌",
+    desc: "근육 대사 부산물로 신장 사구체에서 여과됨 (정상: 0.6~1.2 mg/dL). 신장 기능 저하의 가장 신뢰도 높은 혈액학적 지표.",
+    category: "lab",
+    categoryName: "혈액/진단검사"
+  },
+  {
+    term: "eGFR",
+    full: "Estimated Glomerular Filtration Rate",
+    ko: "추정 사구체여과율",
+    desc: "신장이 1분 동안 혈액을 여과하는 용량 (정상: 90 mL/min/1.73m² 이상). 15 미만 시 말기신부전(ESRD).",
+    category: "lab",
+    categoryName: "혈액/진단검사"
+  },
+  {
+    term: "AST / ALT",
+    full: "Aspartate / Alanine Aminotransferase",
+    ko: "간기능 수치 (GOT / GPT)",
+    desc: "간세포 손상 시 혈중으로 유출되는 효소 (정상: 통상 40 IU/L 이하). 간염, 간독성 약물, 지방간에서 상승.",
+    category: "lab",
+    categoryName: "혈액/진단검사"
+  },
+  {
+    term: "BST",
+    full: "Blood Sugar Test",
+    ko: "간이 혈당검사",
+    desc: "자가혈당측정기로 손끝 모세혈을 채취하여 즉각적으로 혈당치를 확인하는 검사 (공복 정상: 70~100 mg/dL).",
+    category: "lab",
+    categoryName: "혈액/진단검사"
+  },
+  {
+    term: "HbA1c",
+    full: "Glycated Hemoglobin",
+    ko: "당화혈색소",
+    desc: "최근 2~3개월간의 평균 혈당 조절 상태를 반영하는 지표 (당뇨 환자 일반 목표치: 6.5% 미만).",
+    category: "lab",
+    categoryName: "혈액/진단검사"
+  },
+  {
+    term: "ABGA",
+    full: "Arterial Blood Gas Analysis",
+    ko: "동맥혈가스분석",
+    desc: "동맥혈을 채혈하여 pH, PaCO2, PaO2, HCO3-, SaO2 등을 측정, 산-염기 불균형 및 폐 환기 상태를 평가.",
+    category: "lab",
+    categoryName: "혈액/진단검사"
+  },
+  {
+    term: "Troponin-I / T",
+    full: "Troponin-I / Troponin-T",
+    ko: "트로포닌 (심근효소)",
+    desc: "심근 괴사 시 혈중으로 유리되는 가장 특이도 높은 심근경색(MI) 진단 표지자. 흉통 발생 수시간 내 상승.",
+    category: "lab",
+    categoryName: "혈액/진단검사"
+  },
+  {
+    term: "BNP",
+    full: "B-type Natriuretic Peptide",
+    ko: "B형 나트륨이뇨펩티드",
+    desc: "심실벽 신장 및 압력 과부하 시 분비되는 호르몬. 심부전(Heart Failure)의 진단 및 중증도 평가 표지자.",
+    category: "lab",
+    categoryName: "혈액/진단검사"
+  },
+  {
+    term: "D-dimer",
+    full: "D-dimer",
+    ko: "D-다이머",
+    desc: "피브린 혈전이 용해될 때 생성되는 분해 산물. 파종성 혈관내응고(DIC), 심부정맥혈전증(DVT), 폐색전증 선별 지표.",
+    category: "lab",
+    categoryName: "혈액/진단검사"
+  },
+  {
+    term: "CXR",
+    full: "Chest X-ray",
+    ko: "흉부 단순 방사선 촬영",
+    desc: "폐렴, 기흉, 폐부종, 늑막삼출 및 심비대(Cardiomegaly) 여부를 확인하는 가장 기본적 방사선 검사.",
+    category: "lab",
+    categoryName: "혈액/진단검사"
+  },
+  {
+    term: "Echo",
+    full: "Echocardiography",
+    ko: "심장초음파",
+    desc: "초음파를 이용하여 심장의 해부학적 구조, 판막 질환, 심실 벽 운동 및 좌심실 박출률(LVEF)을 비침습적으로 평가.",
+    category: "lab",
+    categoryName: "혈액/진단검사"
+  },
+  {
+    term: "EGD",
+    full: "Esophagogastroduodenoscopy",
+    ko: "상부위장관내시경 (위내시경)",
+    desc: "내시경을 입으로 삽입하여 식도, 위, 십이지장의 궤양, 출혈, 암 등을 직접 관찰하고 지혈술이나 조직검사를 시행.",
+    category: "lab",
+    categoryName: "혈액/진단검사"
+  },
+  {
+    term: "Bx",
+    full: "Biopsy",
+    ko: "생검, 조직검사",
+    desc: "병변 부위의 생체 조직을 미세하게 채취하여 현미경으로 악성(암) 여부 및 병리학적 확진을 내리는 검사.",
+    category: "lab",
+    categoryName: "혈액/진단검사"
+  },
+  {
+    term: "C&S",
+    full: "Culture and Sensitivity",
+    ko: "배양 및 항생제 감수성 검사",
+    desc: "혈액, 소변, 객담 검체에서 원인 미생물을 배양 증식시키고 어떤 항생제에 효과가 있는지 감수성을 확인.",
+    category: "lab",
+    categoryName: "혈액/진단검사"
+  },
+  // 5. 주요 질환 및 임상 병태생리 (Diseases & Conditions)
+  {
+    term: "MI",
+    full: "Myocardial Infarction",
+    ko: "심근경색증",
+    desc: "관상동맥 폐색으로 심장 근육에 혈류가 차단되어 심근 조직이 괴사되는 치명적 심혈관 응급 질환.",
+    category: "disease",
+    categoryName: "주요 질환"
+  },
+  {
+    term: "STEMI",
+    full: "ST-Elevation Myocardial Infarction",
+    ko: "ST분절 상승 심근경색",
+    desc: "심전도상 ST 분절이 상승하는 전층 심근경색. 즉각적인 재관류 시술(PCI)을 90분 이내에 시행해야 함.",
+    category: "disease",
+    categoryName: "주요 질환"
+  },
+  {
+    term: "CHF",
+    full: "Congestive Heart Failure",
+    ko: "울혈성 심부전",
+    desc: "심장의 펌프 기능 저하로 신체 조직에 충분한 혈액을 공급하지 못해 폐울혈, 호흡곤란, 하지부종이 발생하는 상태.",
+    category: "disease",
+    categoryName: "주요 질환"
+  },
+  {
+    term: "AFib / AF",
+    full: "Atrial Fibrillation",
+    ko: "심방세동",
+    desc: "심방이 불규칙하고 매우 빠르게(분당 300~600회) 떨리는 부정맥. 심방 내 혈전 형성에 의한 뇌경색 위험 급증.",
+    category: "disease",
+    categoryName: "주요 질환"
+  },
+  {
+    term: "VT",
+    full: "Ventricular Tachycardia",
+    ko: "심실빈맥",
+    desc: "심실에서 발생하는 분당 100회 이상의 위험한 빈맥. 혈압 저하 및 심실세동으로 진행될 수 있는 중증 부정맥.",
+    category: "disease",
+    categoryName: "주요 질환"
+  },
+  {
+    term: "VF",
+    full: "Ventricular Fibrillation",
+    ko: "심실세동",
+    desc: "심실 근육이 무질서하게 진동하여 심실 박출이 완전히 정지되는 심정지 리듬. 즉각적인 CPR 및 제세동(Defib) 필수.",
+    category: "disease",
+    categoryName: "주요 질환"
+  },
+  {
+    term: "PSVT",
+    full: "Paroxysmal Supraventricular Tachycardia",
+    ko: "발작성 심실상성 빈맥",
+    desc: "돌발적으로 시작되고 끝나는 분당 150~250회의 빈맥. 미주신경 자극(발살바) 또는 아데노신 급속 정주로 치료.",
+    category: "disease",
+    categoryName: "주요 질환"
+  },
+  {
+    term: "DVT",
+    full: "Deep Vein Thrombosis",
+    ko: "심부정맥혈전증",
+    desc: "하지 깊은 정맥에 혈전이 생겨 다리 부종과 통증을 유발하는 질환. 혈전 탈락 시 치명적인 폐색전증(PE) 유발.",
+    category: "disease",
+    categoryName: "주요 질환"
+  },
+  {
+    term: "PE",
+    full: "Pulmonary Embolism",
+    ko: "폐색전증",
+    desc: "하지 정맥 등에서 발생한 혈전이 폐동맥을 막아 급격한 흉통, 호흡곤란, 저산소증 및 심장마비를 일으키는 응급 질환.",
+    category: "disease",
+    categoryName: "주요 질환"
+  },
+  {
+    term: "HTN",
+    full: "Hypertension",
+    ko: "고혈압",
+    desc: "수축기 혈압 140 mmHg 이상 또는 이완기 혈압 90 mmHg 이상이 지속되는 만성 혈관 질환.",
+    category: "disease",
+    categoryName: "주요 질환"
+  },
+  {
+    term: "DM",
+    full: "Diabetes Mellitus",
+    ko: "당뇨병",
+    desc: "인슐린 분비 장애 또는 인슐린 저항성으로 인해 혈중 포도당 농도가 만성적으로 높아지는 대사 질환.",
+    category: "disease",
+    categoryName: "주요 질환"
+  },
+  {
+    term: "DKA",
+    full: "Diabetic Ketoacidosis",
+    ko: "당뇨병성 케톤산증",
+    desc: "심한 인슐린 결핍으로 고혈당, 대사성 산증, 케톤뇨가 발생하여 혼수 및 사망에 이를 수 있는 급성 당뇨 합병증.",
+    category: "disease",
+    categoryName: "주요 질환"
+  },
+  {
+    term: "CVA",
+    full: "Cerebrovascular Accident",
+    ko: "뇌졸중 (중풍)",
+    desc: "뇌혈관의 폐색(뇌경색, Infarction) 또는 파열(뇌출혈, Hemorrhage)로 급격한 신경학적 결손이 발생하는 뇌혈관 질환.",
+    category: "disease",
+    categoryName: "주요 질환"
+  },
+  {
+    term: "TIA",
+    full: "Transient Ischemic Attack",
+    ko: "일과성 허혈발작",
+    desc: "일시적인 뇌혈류 부족으로 마비나 언어장애가 발생했다가 24시간 이내(보통 수분~수십 분 내)에 완전히 호전되는 상태.",
+    category: "disease",
+    categoryName: "주요 질환"
+  },
+  {
+    term: "ICH",
+    full: "Intracerebral Hemorrhage",
+    ko: "뇌내출혈",
+    desc: "뇌 실질 내부 혈관이 파열되어 뇌 조직 내에 혈종이 형성되는 출혈성 뇌졸중.",
+    category: "disease",
+    categoryName: "주요 질환"
+  },
+  {
+    term: "SAH",
+    full: "Subarachnoid Hemorrhage",
+    ko: "지주막하출혈",
+    desc: "뇌동맥류 파열 등으로 인해 지주막하 공간에 출혈이 발생하는 질환. 벼락 맞은 듯한 극심한 두통이 특징.",
+    category: "disease",
+    categoryName: "주요 질환"
+  },
+  {
+    term: "SDH / EDH",
+    full: "Subdural / Epidural Hematoma",
+    ko: "경막하혈종 / 경막외혈종",
+    desc: "두부 외상으로 인해 뇌 경막의 안쪽 또는 바깥쪽에 혈종이 고여 뇌를 압박하는 응급 질환.",
+    category: "disease",
+    categoryName: "주요 질환"
+  },
+  {
+    term: "COPD",
+    full: "Chronic Obstructive Pulmonary Disease",
+    ko: "만성 폐쇄성 폐질환",
+    desc: "흡연, 유해 분진 등으로 인해 기도가 좁아지고 폐포가 파괴되어 비가역적인 기류 제한이 발생하는 만성 호흡기 질환.",
+    category: "disease",
+    categoryName: "주요 질환"
+  },
+  {
+    term: "ARDS",
+    full: "Acute Respiratory Distress Syndrome",
+    ko: "급성 호흡곤란 증후군",
+    desc: "패혈증, 중증 폐렴 등으로 인해 폐포 모세혈관막이 광범위하게 손상되어 발생하는 비심인성 폐부종 및 중증 저산소증.",
+    category: "disease",
+    categoryName: "주요 질환"
+  },
+  {
+    term: "UTI",
+    full: "Urinary Tract Infection",
+    ko: "요로감염",
+    desc: "요도, 방광, 요관, 신장 등 비뇨기계에 세균이 감염된 상태 (방광염, 신우신염).",
+    category: "disease",
+    categoryName: "주요 질환"
+  },
+  {
+    term: "AKI",
+    full: "Acute Kidney Injury",
+    ko: "급성 신손상",
+    desc: "수시간~수일 사이에 신기능이 급격히 저하되어 질소성 노폐물이 축적되고 소변량이 감소하는 질환.",
+    category: "disease",
+    categoryName: "주요 질환"
+  },
+  {
+    term: "CKD / ESRD",
+    full: "Chronic Kidney Disease / End-Stage Renal Disease",
+    ko: "만성 콩팥병 / 말기 신부전",
+    desc: "3개월 이상 신기능 저하가 지속되는 상태. 말기 신부전 도달 시 혈액투석, 복막투석 또는 신장이식 필요.",
+    category: "disease",
+    categoryName: "주요 질환"
+  },
+  {
+    term: "Sepsis",
+    full: "Sepsis / Septic Shock",
+    ko: "패혈증 / 패혈성 쇼크",
+    desc: "감염에 대한 숙주 반응이 조절되지 않아 생명을 위협하는 장기 기능 장애(SOFA 점수 상승) 및 불응성 저혈압 상태.",
+    category: "disease",
+    categoryName: "주요 질환"
+  },
+  {
+    term: "GERD",
+    full: "Gastroesophageal Reflux Disease",
+    ko: "위식도역류질환",
+    desc: "위산이나 위 내용물이 식도로 역류하여 가슴쓰림(Heartburn)과 산역류 증상을 유발하는 질환.",
+    category: "disease",
+    categoryName: "주요 질환"
+  },
+  {
+    term: "LC",
+    full: "Liver Cirrhosis",
+    ko: "간경변증",
+    desc: "만성 염증으로 인해 간세포가 파괴되고 섬유조직으로 치환되어 복수, 정맥류 출혈, 간성혼수 등이 발생하는 상태.",
+    category: "disease",
+    categoryName: "주요 질환"
+  },
+  {
+    term: "Melena",
+    full: "Melena",
+    ko: "흑색변",
+    desc: "상부 위장관(식도, 위, 십이지장) 출혈로 인해 혈액이 위산과 장내 세균에 의해 산화되어 자장면 색깔의 검은 변을 배설.",
+    category: "disease",
+    categoryName: "주요 질환"
+  },
+  {
+    term: "Hematochezia",
+    full: "Hematochezia",
+    ko: "혈변",
+    desc: "하부 위장관(대장, 직장, 항문) 출혈 또는 대량 상부위장관 출혈로 인해 대변에 선홍색 생혈이 섞여 나오는 상태.",
+    category: "disease",
+    categoryName: "주요 질환"
+  },
+  {
+    term: "Hemoptysis",
+    full: "Hemoptysis",
+    ko: "객혈",
+    desc: "기관지, 폐 등 호흡기계통의 출혈로 인해 기침과 함께 피를 토하듯이 뱉어내는 증상 (토혈과 구별).",
+    category: "disease",
+    categoryName: "주요 질환"
+  },
+  {
+    term: "Hematemesis",
+    full: "Hematemesis",
+    ko: "토혈",
+    desc: "상부 위장관 출혈로 인해 구토 시 피를 토해내는 증상 (갈색의 커피 찌꺼기 모양 또는 선홍색 혈액).",
+    category: "disease",
+    categoryName: "주요 질환"
+  },
+  // 6. 진료과 및 병동 부서 (Departments & Units)
+  {
+    term: "IM",
+    full: "Internal Medicine",
+    ko: "내과",
+    desc: "소화기, 순환기, 호흡기, 내분비, 신장, 혈액종양, 류마티스, 감염내과 등 비수술적 내과적 질환 진료과.",
+    category: "dept",
+    categoryName: "진료과/병동"
+  },
+  {
+    term: "GS",
+    full: "General Surgery",
+    ko: "외과",
+    desc: "위장관, 간담췌, 대장항문, 유방, 내분비, 혈관, 이식 등 수술적 치료를 시행하는 일반외과.",
+    category: "dept",
+    categoryName: "진료과/병동"
+  },
+  {
+    term: "OS",
+    full: "Orthopedic Surgery",
+    ko: "정형외과",
+    desc: "골절, 관절, 척추, 인대, 근육 등 근골격계 질환 및 외상 치료 전문과.",
+    category: "dept",
+    categoryName: "진료과/병동"
+  },
+  {
+    term: "NS",
+    full: "Neurosurgery",
+    ko: "신경외과",
+    desc: "뇌출혈, 뇌경색, 뇌종양, 척추 디스크 및 척수 손상 등 중추신경계 수술 전문과.",
+    category: "dept",
+    categoryName: "진료과/병동"
+  },
+  {
+    term: "CS / TS",
+    full: "Thoracic and Cardiovascular Surgery",
+    ko: "심장혈관흉부외과",
+    desc: "심장수술(관상동맥우회술, 판막치환술), 폐암 수술, 식도 및 대동맥 수술 전문과.",
+    category: "dept",
+    categoryName: "진료과/병동"
+  },
+  {
+    term: "OBGY",
+    full: "Obstetrics and Gynecology",
+    ko: "산부인과",
+    desc: "임신, 출산 및 산후 관리를 다루는 산과(Obstetrics)와 여성 생식기 질환을 다루는 부인과(Gynecology).",
+    category: "dept",
+    categoryName: "진료과/병동"
+  },
+  {
+    term: "PED",
+    full: "Pediatrics",
+    ko: "소아청소년과",
+    desc: "신생아부터 청소년기까지의 성장 발달 및 소아 질환을 전문적으로 진료하는 과.",
+    category: "dept",
+    categoryName: "진료과/병동"
+  },
+  {
+    term: "ENT",
+    full: "Ear, Nose, and Throat (Otorhinolaryngology)",
+    ko: "이비인후과",
+    desc: "귀, 코, 인후두 및 두경부 영역의 질환을 진단하고 수술 및 약물 치료를 담당.",
+    category: "dept",
+    categoryName: "진료과/병동"
+  },
+  {
+    term: "DER",
+    full: "Dermatology",
+    ko: "피부과",
+    desc: "피부, 모발, 손발톱 및 점막 질환을 진료하는 임상 분과.",
+    category: "dept",
+    categoryName: "진료과/병동"
+  },
+  {
+    term: "URO",
+    full: "Urology",
+    ko: "비뇨의학과",
+    desc: "신장, 요관, 방광, 요도 및 남성 생식기계 질환(전립선, 고환)을 수술 및 약물로 치료.",
+    category: "dept",
+    categoryName: "진료과/병동"
+  },
+  {
+    term: "OPH",
+    full: "Ophthalmology",
+    ko: "안과",
+    desc: "눈과 안와 부속기관의 질환(백내장, 녹내장, 망막박리 등)을 진료하고 수술.",
+    category: "dept",
+    categoryName: "진료과/병동"
+  },
+  {
+    term: "PSY",
+    full: "Psychiatry",
+    ko: "정신건강의학과",
+    desc: "우울증, 조현병, 불안장애, 불면증, 섬망(Delirium) 등 정신적·정서적 뇌기능 질환 치료.",
+    category: "dept",
+    categoryName: "진료과/병동"
+  },
+  {
+    term: "ER",
+    full: "Emergency Room",
+    ko: "응급실 (응급의료센터)",
+    desc: "급성 질환이나 중증 외상 환자를 24시간 즉시 처치하고 소생시키는 응급 치료 부서.",
+    category: "dept",
+    categoryName: "진료과/병동"
+  },
+  {
+    term: "OR",
+    full: "Operating Room",
+    ko: "수술실",
+    desc: "무균 환경에서 마취 및 외과적 수술을 집도하는 병원 핵심 시설.",
+    category: "dept",
+    categoryName: "진료과/병동"
+  },
+  {
+    term: "PACU",
+    full: "Post-Anesthesia Care Unit",
+    ko: "마취회복실",
+    desc: "전신마취 또는 척추마취 수술 직후 환자가 의식을 되찾고 활력징후가 안정될 때까지 집중 관찰하는 부서.",
+    category: "dept",
+    categoryName: "진료과/병동"
+  },
+  {
+    term: "ICU",
+    full: "Intensive Care Unit",
+    ko: "중환자실",
+    desc: "생명이 위독하거나 침습적 인공호흡기, 지속적 투석, 승압제 치료가 필요한 환자를 집중 감시 치료하는 병동.",
+    category: "dept",
+    categoryName: "진료과/병동"
+  },
+  {
+    term: "CCU",
+    full: "Coronary Care Unit",
+    ko: "심장계 중환자실",
+    desc: "급성 심근경색, 치명적 부정맥, 심인성 쇼크 환자만을 집중 치료하는 특수 심장 중환자실.",
+    category: "dept",
+    categoryName: "진료과/병동"
+  },
+  {
+    term: "NCU",
+    full: "Neurological Intensive Care Unit",
+    ko: "신경계 중환자실",
+    desc: "급성 뇌출혈, 뇌경색, 두부 외상 및 뇌수술 후 환자를 집중 관리하는 뇌신경계 중환자실.",
+    category: "dept",
+    categoryName: "진료과/병동"
+  },
+  {
+    term: "SICU / MICU",
+    full: "Surgical / Medical Intensive Care Unit",
+    ko: "외과계 / 내과계 중환자실",
+    desc: "대수술 후 중환자 관리를 위한 외과계 중환자실과 패혈증, 호흡부전 등 내과 질환을 다루는 내과계 중환자실.",
+    category: "dept",
+    categoryName: "진료과/병동"
+  }
+];
+const Chip = ({ active, onClick, children }) => <button
+  onClick={onClick}
+  className={`whitespace-nowrap px-4 py-2 rounded-full text-sm font-semibold transition-all cursor-pointer ${active ? "bg-rose-500 text-white shadow-md shadow-pink-200" : "bg-white text-slate-600 border border-pink-200 hover:bg-pink-50/70"}`}
+>
+    {children}
+  </button>;
+const TabItem = ({ icon, label, active, onClick, badge }) => <button
+  onClick={onClick}
+  className={`flex items-center justify-between w-full p-3 rounded-xl transition-all mb-2 cursor-pointer ${active ? "bg-pink-100/70 text-rose-700 border border-pink-300/80 shadow-sm font-bold" : "text-slate-500 hover:bg-pink-50/70 hover:text-rose-600"}`}
+>
+    <div className="flex items-center gap-3">
+      <i className={`ph${active ? "-fill text-rose-500" : ""} ph-${icon} text-2xl`} />
+      <span className="text-sm font-semibold hidden sm:block">{label}</span>
+    </div>
+    {badge && <span className="hidden sm:inline-block text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-rose-100 text-rose-700 border border-rose-200">
+        {badge}
+      </span>}
+  </button>;
+const GttCalc = () => {
+  const [vol, setVol] = useState(1e3);
+  const [hours, setHours] = useState(24);
+  const [mins, setMins] = useState(0);
+  const [dropFactor, setDropFactor] = useState(20);
+  const totalMins = (Number(hours) || 0) * 60 + (Number(mins) || 0);
+  const gtt = totalMins > 0 ? (Number(vol) || 0) * dropFactor / totalMins : 0;
+  const secPerDrop = gtt > 0 ? 60 / gtt : 0;
+  return <div className="space-y-4 px-4 pb-4 animate-fade-in">
+      <div className="bg-white rounded-2xl p-5 border border-pink-200 shadow-sm">
+        <div className="mb-4">
+          <label className="text-sm text-slate-500 mb-2 block font-medium">총 수액 용량 (mL)</label>
+          <input
+    type="number"
+    value={vol}
+    onChange={(e) => setVol(e.target.value)}
+    className="w-full bg-pink-50/20 border border-pink-200 rounded-xl px-4 py-3 text-lg font-bold focus:outline-none focus:border-rose-400 text-slate-900"
+  />
+        </div>
+        <div className="mb-4 grid grid-cols-2 gap-4">
+          <div>
+            <label className="text-sm text-slate-500 mb-2 block font-medium">투여 시간 (시간)</label>
+            <input
+    type="number"
+    value={hours}
+    onChange={(e) => setHours(e.target.value)}
+    className="w-full bg-pink-50/20 border border-pink-200 rounded-xl px-4 py-3 text-lg font-bold focus:outline-none focus:border-rose-400 text-slate-900"
+  />
+          </div>
+          <div>
+            <label className="text-sm text-slate-500 mb-2 block font-medium">투여 시간 (분)</label>
+            <input
+    type="number"
+    value={mins}
+    onChange={(e) => setMins(e.target.value)}
+    className="w-full bg-pink-50/20 border border-pink-200 rounded-xl px-4 py-3 text-lg font-bold focus:outline-none focus:border-rose-400 text-slate-900"
+  />
+          </div>
+        </div>
+        <div>
+          <label className="text-sm text-slate-500 mb-2 block font-medium">수액 세트 규격 (Drop Factor)</label>
+          <div className="grid grid-cols-3 gap-2">
+            {[15, 20, 60].map((factor) => <button
+    key={factor}
+    onClick={() => setDropFactor(factor)}
+    className={`py-2 rounded-xl text-sm font-bold border transition-colors cursor-pointer ${dropFactor === factor ? "bg-rose-500 border-rose-400 text-white shadow-sm shadow-pink-200" : "bg-pink-50/30 border-pink-200 text-slate-600 hover:bg-pink-100/60"}`}
+  >
+                {factor} gtt/mL {factor === 60 ? "(Micro)" : "(Macro)"}
+              </button>)}
+          </div>
+        </div>
+      </div>
+
+      <div className="bg-gradient-to-br from-pink-50 via-rose-50/40 to-white rounded-2xl p-6 border border-pink-200 text-center shadow-sm">
+        <div className="text-slate-500 text-sm mb-1 font-medium">분당 방울 수</div>
+        <div className="text-5xl font-black text-rose-950 mb-4">
+          {Math.round(gtt)} <span className="text-xl font-medium text-rose-500">gtt/min</span>
+        </div>
+
+        <div className="h-px w-full bg-pink-200/60 mb-4" />
+
+        <div className="text-slate-500 text-sm mb-1 font-medium">방울 떨어지는 간격</div>
+        <div className="text-3xl font-bold text-rose-600">
+          {secPerDrop.toFixed(1)} <span className="text-lg font-normal text-rose-700">초당 1방울</span>
+        </div>
+      </div>
+    </div>;
+};
+const CcHrCalc = () => {
+  const [vol, setVol] = useState(500);
+  const [hours, setHours] = useState(24);
+  const cchr = (Number(hours) || 0) > 0 ? (Number(vol) || 0) / Number(hours) : 0;
+  return <div className="space-y-4 px-4 pb-4 animate-fade-in">
+      <div className="bg-white rounded-2xl p-5 border border-pink-200 shadow-sm">
+        <div className="mb-4">
+          <label className="text-sm text-slate-500 mb-2 block font-medium">처방 수액/약물 용량 (mL)</label>
+          <input
+    type="number"
+    value={vol}
+    onChange={(e) => setVol(e.target.value)}
+    className="w-full bg-pink-50/20 border border-pink-200 rounded-xl px-4 py-3 text-lg font-bold focus:outline-none focus:border-rose-400 text-slate-900"
+  />
+        </div>
+        <div>
+          <label className="text-sm text-slate-500 mb-2 block font-medium">목표 투여 시간 (hr)</label>
+          <input
+    type="number"
+    value={hours}
+    onChange={(e) => setHours(e.target.value)}
+    className="w-full bg-pink-50/20 border border-pink-200 rounded-xl px-4 py-3 text-lg font-bold focus:outline-none focus:border-rose-400 text-slate-900"
+  />
+        </div>
+      </div>
+
+      <div className="bg-gradient-to-br from-pink-50 via-rose-50/40 to-white rounded-2xl p-6 border border-pink-200 text-center shadow-sm">
+        <div className="text-slate-500 text-sm mb-1 font-medium">인퓨전 펌프 설정 속도</div>
+        <div className="text-5xl font-black text-rose-950">
+          {cchr.toFixed(1)} <span className="text-xl font-medium text-rose-500">cc/hr (mL/hr)</span>
+        </div>
+      </div>
+    </div>;
+};
+const DilutionCalc = () => {
+  const [powder, setPowder] = useState(1e3);
+  const [targetConc, setTargetConc] = useState(10);
+  const diluent = (Number(targetConc) || 0) > 0 ? (Number(powder) || 0) / Number(targetConc) : 0;
+  return <div className="space-y-4 px-4 pb-4 animate-fade-in">
+      <div className="bg-white rounded-2xl p-5 border border-pink-200 shadow-sm">
+        <div className="mb-4">
+          <label className="text-sm text-slate-500 mb-2 block font-medium">보유 약물 함량 (mg)</label>
+          <input
+    type="number"
+    value={powder}
+    onChange={(e) => setPowder(e.target.value)}
+    className="w-full bg-pink-50/20 border border-pink-200 rounded-xl px-4 py-3 text-lg font-bold focus:outline-none focus:border-rose-400 text-slate-900"
+  />
+        </div>
+        <div>
+          <label className="text-sm text-slate-500 mb-2 block font-medium">목표 농도 (mg/mL)</label>
+          <input
+    type="number"
+    value={targetConc}
+    onChange={(e) => setTargetConc(e.target.value)}
+    className="w-full bg-pink-50/20 border border-pink-200 rounded-xl px-4 py-3 text-lg font-bold focus:outline-none focus:border-rose-400 text-slate-900"
+  />
+        </div>
+      </div>
+
+      <div className="bg-gradient-to-br from-pink-50 via-rose-50/40 to-white rounded-2xl p-6 border border-pink-200 text-center shadow-sm">
+        <div className="text-slate-500 text-sm mb-1 font-medium">필요한 총 희석액 용량 (최종 볼륨)</div>
+        <div className="text-4xl font-black text-rose-600">
+          {diluent.toFixed(1)} <span className="text-lg font-medium text-rose-700">mL</span>
+        </div>
+      </div>
+    </div>;
+};
+const DrugCalcCard = ({ drug, weight }) => {
+  const [dose, setDose] = useState(0);
+  const [amount, setAmount] = useState(drug.defaultAmount);
+  const [vol, setVol] = useState(drug.defaultVol);
+  const calculateInfusion = () => {
+    const w = Number(weight) || 0;
+    const d = Number(dose) || 0;
+    const a = Number(amount) || 0;
+    const v = Number(vol) || 1;
+    let conc_mcg = 0;
+    let conc_mg = 0;
+    let conc_u = 0;
+    if (drug.defaultAmountUnit === "mg") {
+      conc_mcg = a * 1e3 / v;
+      conc_mg = a / v;
+    } else if (drug.defaultAmountUnit === "mcg") {
+      conc_mcg = a / v;
+    } else if (drug.defaultAmountUnit === "U") {
+      conc_u = a / v;
+    }
+    if (drug.doseUnit === "mcg/kg/min") {
+      return conc_mcg > 0 ? d * w * 60 / conc_mcg : 0;
+    } else if (drug.doseUnit === "mg/kg/hr") {
+      return conc_mg > 0 ? d * w / conc_mg : 0;
+    } else if (drug.doseUnit === "mcg/kg/hr") {
+      return conc_mcg > 0 ? d * w / conc_mcg : 0;
+    } else if (drug.doseUnit === "U/min") {
+      return conc_u > 0 ? d * 60 / conc_u : 0;
+    }
+    return 0;
+  };
+  const mlPerHour = calculateInfusion();
+  const isOverDose = dose > drug.maxAlert;
+  const currentUnitValue = () => {
+    const a = Number(amount) || 0;
+    const v = Number(vol) || 1;
+    if (drug.defaultAmountUnit === "mg") {
+      return `${(a * 1e3 / v).toFixed(1)} mcg/mL`;
+    }
+    return `${(a / v).toFixed(1)} ${drug.defaultAmountUnit}/mL`;
+  };
+  return <div className="bg-white rounded-2xl p-4 border border-pink-200/90 shadow-sm transition-all hover:border-pink-300">
+      <div className="flex justify-between items-start mb-3">
+        <div>
+          <h3 className="font-bold text-lg text-slate-900">
+            {drug.name} <span className="text-sm text-slate-500 font-normal ml-1">{drug.nameKr}</span>
+          </h3>
+          <div className="mt-1 flex gap-2">
+            <span className={`text-[10px] px-2 py-0.5 rounded-full bg-pink-50/70 border border-pink-200 font-medium ${drug.color}`}>
+              {drug.type}
+            </span>
+            {drug.badge && <span className="text-[10px] px-2 py-0.5 rounded-full bg-red-50 text-red-600 border border-red-200 font-bold">
+                {drug.badge}
+              </span>}
+          </div>
+        </div>
+      </div>
+
+      <div className="bg-pink-50/30 rounded-xl p-3 mb-4 text-sm flex flex-wrap justify-between items-center gap-2 border border-pink-200">
+        <div className="flex items-center gap-1">
+          <span className="text-slate-500 mr-1 font-medium">조성:</span>
+          <input
+    type="number"
+    className="bg-white w-14 text-center font-semibold text-rose-600 border border-pink-200 rounded px-1 py-0.5 focus:outline-none focus:ring-1 focus:ring-rose-400"
+    value={amount}
+    onChange={(e) => setAmount(e.target.value)}
+  />
+          <span className="text-slate-600 text-xs">{drug.defaultAmountUnit}</span>
+          <span className="text-slate-400 mx-1">/</span>
+          <input
+    type="number"
+    className="bg-white w-16 text-center font-semibold text-rose-600 border border-pink-200 rounded px-1 py-0.5 focus:outline-none focus:ring-1 focus:ring-rose-400"
+    value={vol}
+    onChange={(e) => setVol(e.target.value)}
+  />
+          <span className="text-slate-600 text-xs">mL</span>
+        </div>
+        <div className="text-xs text-slate-600 bg-white px-2 py-1 rounded border border-pink-200 font-medium">
+          = {currentUnitValue()}
+        </div>
+      </div>
+
+      <div className="flex justify-between items-center bg-pink-50/20 p-3 rounded-xl border border-pink-100">
+        <div className="flex flex-col">
+          <label className="text-xs text-slate-500 mb-1 font-medium">처방 용량 ({drug.doseUnit})</label>
+          <div className="flex items-center gap-2">
+            <button
+    className="w-8 h-8 rounded-full bg-pink-100 flex items-center justify-center hover:bg-pink-200 text-rose-700 font-bold transition-colors cursor-pointer"
+    onClick={() => setDose(Math.max(0, Number((dose - drug.step).toFixed(3))))}
+  >
+              -
+            </button>
+            <input
+    type="number"
+    step={drug.step}
+    value={dose}
+    onChange={(e) => setDose(parseFloat(e.target.value) || 0)}
+    className="w-16 bg-transparent text-center text-xl font-bold focus:outline-none text-slate-900 border-b border-pink-300"
+  />
+            <button
+    className="w-8 h-8 rounded-full bg-pink-100 flex items-center justify-center hover:bg-pink-200 text-rose-700 font-bold transition-colors cursor-pointer"
+    onClick={() => setDose(Number((dose + drug.step).toFixed(3)))}
+  >
+              +
+            </button>
+          </div>
+        </div>
+        <div className="text-right flex flex-col items-end">
+          <div className="text-xs text-slate-500 mb-1 flex items-center gap-1 font-medium">
+            <i className="ph-fill ph-drop text-rose-500" /> 속도 (mL/hr)
+          </div>
+          <div className="text-3xl font-black text-rose-600 bg-white px-3 py-1 rounded-xl border border-pink-200 min-w-[90px] text-center shadow-sm">
+            {isFinite(mlPerHour) ? mlPerHour.toFixed(1) : "0.0"}
+          </div>
+        </div>
+      </div>
+
+      {isOverDose && <div className="mt-3 p-2.5 bg-red-50 border border-red-200 rounded-xl text-red-700 text-xs flex items-start gap-2 animate-pulse">
+          <i className="ph-fill ph-warning-circle text-base mt-0.5 shrink-0" />
+          <div>
+            <strong>안전 경고:</strong> 권장 상한 용량({drug.maxAlert} {drug.doseUnit})을 초과했습니다. 실제 의사의 투약 처방 지시를 재확인하십시오.
+          </div>
+        </div>}
+    </div>;
+};
+const IcuCalc = () => {
+  const [weight, setWeight] = useState(60);
+  const [search, setSearch] = useState("");
+  const filteredDrugs = icuDrugs.filter(
+    (drug) => drug.name.toLowerCase().includes(search.toLowerCase()) || drug.nameKr.includes(search)
+  );
+  return <div className="px-4 pb-4 animate-fade-in">
+      <div className="bg-white rounded-2xl p-5 mb-5 border border-pink-200 shadow-sm relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-24 h-24 bg-pink-100 rounded-full blur-2xl -mr-10 -mt-10 pointer-events-none" />
+        <div className="flex justify-between items-center mb-2">
+          <label className="text-sm text-slate-600 block font-semibold">환자 체중 (Body Weight)</label>
+          <div className="flex gap-1.5">
+            {[50, 60, 70, 80].map((w) => <button
+    key={w}
+    onClick={() => setWeight(w)}
+    className={`text-xs px-2.5 py-1 rounded-lg border font-medium transition-all cursor-pointer ${Number(weight) === w ? "bg-rose-500 text-white border-rose-500 shadow-sm" : "bg-pink-50/40 text-slate-600 border-pink-200 hover:bg-pink-100/60"}`}
+  >
+                {w}kg
+              </button>)}
+          </div>
+        </div>
+        <div className="flex items-center gap-3 relative z-10">
+          <input
+    type="number"
+    value={weight}
+    onChange={(e) => setWeight(e.target.value)}
+    className="bg-pink-50/20 border border-pink-200 rounded-xl px-4 py-3 w-full text-2xl font-black focus:outline-none focus:border-rose-400 text-slate-900 shadow-inner"
+  />
+          <span className="text-xl text-slate-600 font-bold">kg</span>
+        </div>
+      </div>
+
+      <div className="relative shadow-sm mb-4">
+        <i className="ph ph-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-lg" />
+        <input
+    type="text"
+    placeholder="약물 검색 (예: 도파민, epi, 노르에피, 프로포폴)..."
+    value={search}
+    onChange={(e) => setSearch(e.target.value)}
+    className="w-full bg-white border border-pink-200 rounded-xl pl-12 pr-4 py-3 focus:outline-none focus:border-rose-400 text-slate-900 placeholder-slate-400 transition-colors"
+  />
+      </div>
+
+      <div className="space-y-4">
+        {filteredDrugs.length === 0 && <div className="text-center text-slate-500 py-6 bg-white rounded-2xl border border-pink-200">
+            검색된 약물이 없습니다.
+          </div>}
+        {filteredDrugs.map((drug) => <DrugCalcCard key={drug.id} drug={drug} weight={weight} />)}
+      </div>
+    </div>;
+};
+const CalcTab = () => {
+  const [mode, setMode] = useState("icu");
+  return <div className="space-y-4 animate-fade-in pt-2">
+      <div className="px-4 flex gap-2 overflow-x-auto no-scrollbar pb-2">
+        <Chip active={mode === "icu"} onClick={() => setMode("icu")}>정밀주입 (ICU)</Chip>
+        <Chip active={mode === "gtt"} onClick={() => setMode("gtt")}>gtt/min</Chip>
+        <Chip active={mode === "cchr"} onClick={() => setMode("cchr")}>cc/hr</Chip>
+        <Chip active={mode === "dilution"} onClick={() => setMode("dilution")}>희석/용해</Chip>
+      </div>
+      {mode === "icu" && <IcuCalc />}
+      {mode === "gtt" && <GttCalc />}
+      {mode === "cchr" && <CcHrCalc />}
+      {mode === "dilution" && <DilutionCalc />}
+    </div>;
+};
+const DBTab = () => {
+  const [search, setSearch] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("all");
+  const categories = [
+    { id: "all", label: "전체 약물", icon: "ph-list-bullets" },
+    { id: "preg", label: "임부금기 (1·2등급)", icon: "ph-baby", badge: "DUR" },
+    { id: "cardio", label: "순환기계", icon: "ph-heartbeat" },
+    { id: "neuro", label: "신경/진정/진통", icon: "ph-brain" },
+    { id: "anti", label: "항생물질", icon: "ph-shield-plus" },
+    { id: "resp_meta", label: "이뇨/전해질/응급", icon: "ph-first-aid" }
+  ];
+  const filtered = useMemo(() => {
+    return drugDB.filter((d) => {
+      const matchCategory = selectedCategory === "all" ? true : selectedCategory === "preg" ? d.pregGrade !== void 0 || d.category === "preg" : d.category === selectedCategory;
+      const q = search.toLowerCase();
+      const matchSearch = !search || d.name.toLowerCase().includes(q) || d.ko.toLowerCase().includes(q) || d.kpicClass && d.kpicClass.toLowerCase().includes(q) || d.class && d.class.toLowerCase().includes(q) || d.pregnancy && d.pregnancy.toLowerCase().includes(q) || q.includes("임부") && d.pregGrade || q.includes("임산부") && d.pregGrade || q.includes("기형") && d.pregGrade;
+      return matchCategory && matchSearch;
+    });
+  }, [search, selectedCategory]);
+  return <div className="p-4 space-y-4 animate-fade-in pb-12">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 pb-1">
+        <div>
+          <h2 className="text-xl font-bold text-slate-900 flex items-center gap-2">
+            <i className="ph-fill ph-book-bookmark text-rose-500" /> 임상 약물사전
+          </h2>
+          <p className="text-xs text-slate-500 mt-0.5">약학정보원(KPIC) 약효분류 및 식약처 DUR 임부금기 가이드라인 탑재</p>
+        </div>
+        <span className="text-xs font-semibold px-2.5 py-1 bg-pink-50 text-rose-700 rounded-full border border-pink-200 self-start sm:self-auto">
+          총 {filtered.length}종 약물
+        </span>
+      </div>
+
+      <div className="relative shadow-sm">
+        <i className="ph ph-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-lg" />
+        <input
+    type="text"
+    placeholder="약물명 검색 (예: 로아큐탄, 와파린, 임부금기, 노르에피)..."
+    value={search}
+    onChange={(e) => setSearch(e.target.value)}
+    className="w-full bg-white border border-pink-200 rounded-xl pl-12 pr-10 py-3 focus:outline-none focus:border-rose-400 text-slate-900 placeholder-slate-400 transition-colors"
+  />
+        {search && <button
+    onClick={() => setSearch("")}
+    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 cursor-pointer"
+  >
+            <i className="ph ph-x-circle text-lg" />
+          </button>}
+      </div>
+
+      <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1 pt-0.5">
+        {categories.map((cat) => <button
+    key={cat.id}
+    onClick={() => setSelectedCategory(cat.id)}
+    className={`flex items-center gap-1.5 whitespace-nowrap px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all cursor-pointer ${selectedCategory === cat.id ? "bg-rose-500 text-white shadow-md shadow-pink-200 scale-[1.02]" : "bg-white text-slate-600 border border-pink-200 hover:bg-pink-50/70"}`}
+  >
+            <i className={`ph ${cat.icon} text-sm`} />
+            {cat.label}
+            {cat.badge && <span
+    className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${selectedCategory === cat.id ? "bg-white/20 text-white" : "bg-rose-200 text-rose-800"}`}
+  >
+                {cat.badge}
+              </span>}
+          </button>)}
+      </div>
+
+      <div className="space-y-4 pt-1">
+        {filtered.length === 0 && <div className="text-center bg-white rounded-2xl p-8 border border-pink-200 text-slate-500">
+            <i className="ph ph-magnifying-glass text-3xl mb-2 text-slate-300" />
+            <p className="font-medium">검색 조건에 맞는 약물이 없습니다.</p>
+            <button
+    onClick={() => {
+      setSearch("");
+      setSelectedCategory("all");
+    }}
+    className="mt-3 text-xs text-rose-600 font-bold hover:underline cursor-pointer"
+  >
+              필터 초기화
+            </button>
+          </div>}
+
+        {filtered.map((d, i) => <div
+    key={i}
+    className="bg-white rounded-2xl p-4 sm:p-5 border border-pink-200/90 shadow-sm hover:border-pink-300 transition-all"
+  >
+            <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2 mb-2.5">
+              <div>
+                <div className="flex items-center flex-wrap gap-1.5 mb-1">
+                  <h3 className="font-bold text-lg text-slate-900">{d.name}</h3>
+                  <span className="text-sm font-medium text-slate-600">({d.ko})</span>
+                </div>
+                <div className="flex items-center flex-wrap gap-1.5">
+                  <span className="text-[11px] px-2.5 py-0.5 rounded-full bg-pink-50 border border-pink-200 text-rose-700 font-semibold">
+                    {d.kpicClass || d.class}
+                  </span>
+                  {d.highRisk && <span className="text-[11px] px-2 py-0.5 rounded-full bg-red-50 text-red-600 border border-red-200 font-bold">
+                      🔴 고위험약물
+                    </span>}
+                  {d.pregGrade === 1 && <span className="text-[11px] px-2 py-0.5 rounded-full bg-rose-50 text-rose-700 border border-rose-300 font-bold flex items-center gap-1">
+                      <i className="ph-fill ph-prohibit text-xs" /> 임부금기 1등급 (절대금기)
+                    </span>}
+                  {d.pregGrade === 2 && <span className="text-[11px] px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-300 font-bold flex items-center gap-1">
+                      <i className="ph-fill ph-warning-diamond text-xs" /> 임부금기 2등급 (상태금기)
+                    </span>}
+                  {d.badge && !d.badge.includes("고위험") && !d.badge.includes("임부금기") && <span className="text-[11px] px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200 font-bold">
+                      {d.badge}
+                    </span>}
+                </div>
+              </div>
+              <span className="text-[11px] self-start px-2 py-0.5 bg-slate-100 text-slate-600 rounded-md font-medium border border-slate-200">
+                {d.categoryName}
+              </span>
+            </div>
+
+            <p className="text-sm text-slate-700 mb-3 bg-slate-50/70 p-2.5 rounded-xl border border-slate-100 leading-relaxed">
+              <strong className="text-slate-900 font-semibold mr-1">적응증:</strong> {d.desc}
+            </p>
+
+            <div className="space-y-2 text-xs">
+              {d.pregnancy && <div
+    className={`p-3 rounded-xl border flex items-start gap-2 ${d.pregGrade === 1 ? "bg-rose-50/80 border-rose-200 text-rose-900" : "bg-amber-50/80 border-amber-200 text-amber-900"}`}
+  >
+                  <i
+    className={`ph-fill ${d.pregGrade === 1 ? "ph-baby text-rose-600" : "ph-warning text-amber-600"} text-base shrink-0 mt-0.5`}
+  />
+                  <div>
+                    <div className="font-bold mb-0.5 flex items-center gap-1.5">
+                      <span>
+                        {d.pregGrade === 1 ? "🔴 DUR 임부금기 1등급 (태아 치명적 위해)" : "⚠️ DUR 임부금기 2등급 (상태금기 주의)"}
+                      </span>
+                    </div>
+                    <div className={`leading-relaxed ${d.pregGrade === 1 ? "text-rose-800" : "text-amber-800"}`}>
+                      {d.pregnancy}
+                    </div>
+                  </div>
+                </div>}
+
+              <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-100 flex items-start gap-2">
+                <div className="w-5 h-5 rounded-md bg-blue-100 text-blue-700 flex items-center justify-center shrink-0 mt-0.5 font-bold">
+                  <i className="ph-fill ph-drop text-xs" />
+                </div>
+                <div>
+                  <span className="text-slate-500 font-medium mr-1.5">권장 희석액:</span>
+                  <span className="text-slate-900 font-semibold">{d.diluent}</span>
+                </div>
+              </div>
+
+              {(d.compat || d.lasa) && <div className="bg-amber-50/60 p-2.5 rounded-xl border border-amber-200/80 space-y-1.5">
+                  {d.compat && <div className="flex items-start gap-1.5 text-amber-900">
+                      <i className="ph-fill ph-warning-circle text-amber-600 text-sm shrink-0 mt-0.5" />
+                      <div>
+                        <strong className="font-semibold text-amber-900">혼합/배합 주의: </strong>
+                        <span className="text-amber-800">{d.compat}</span>
+                      </div>
+                    </div>}
+                  {d.lasa && <div className="flex items-start gap-1.5 text-pink-900 pt-0.5 border-t border-amber-200/50">
+                      <i className="ph-fill ph-eyes text-pink-600 text-sm shrink-0 mt-0.5" />
+                      <div>
+                        <strong className="font-semibold text-pink-900">LASA(유사명칭/외관 주의): </strong>
+                        <span className="text-pink-800 font-medium">{d.lasa}</span>
+                      </div>
+                    </div>}
+                </div>}
+            </div>
+          </div>)}
+      </div>
+    </div>;
+};
+const PregnancyTab = () => {
+  const [filterGrade, setFilterGrade] = useState("all");
+  const [searchTerm, setSearchTerm] = useState("");
+  const pregDrugs = useMemo(() => {
+    return drugDB.filter((d) => {
+      if (!d.pregGrade) return false;
+      const matchGrade = filterGrade === "all" || d.pregGrade.toString() === filterGrade;
+      const q = searchTerm.toLowerCase();
+      const matchSearch = !searchTerm || d.name.toLowerCase().includes(q) || d.ko.toLowerCase().includes(q) || d.desc.toLowerCase().includes(q) || d.pregnancy && d.pregnancy.toLowerCase().includes(q);
+      return matchGrade && matchSearch;
+    });
+  }, [filterGrade, searchTerm]);
+  return <div className="p-4 space-y-5 animate-fade-in pb-12">
+      <div className="bg-gradient-to-br from-rose-50 via-white to-pink-50 rounded-2xl p-5 border border-rose-200 shadow-sm relative overflow-hidden">
+        <div className="absolute right-0 top-0 w-36 h-36 bg-rose-200/40 rounded-full blur-2xl -mr-8 -mt-8 pointer-events-none" />
+        <div className="relative z-10">
+          <div className="flex items-center gap-2 mb-2">
+            <span className="p-2 rounded-xl bg-rose-500 text-white shadow-md shadow-rose-200">
+              <i className="ph-fill ph-baby text-2xl" />
+            </span>
+            <div>
+              <h2 className="text-xl font-bold text-slate-900">임부금기 의약품 가이드 (식약처 DUR)</h2>
+              <p className="text-xs text-rose-700 font-medium">
+                식품의약품안전처 처방·조제 지원시스템(DUR) 임부금기 등급 체계 및 태아 위해성 임상 가이드
+              </p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-4 text-xs">
+            <div className="bg-white/90 rounded-xl p-3.5 border border-rose-300 shadow-sm">
+              <div className="flex items-center justify-between mb-1.5">
+                <div className="font-extrabold text-rose-700 flex items-center gap-1.5 text-sm">
+                  <i className="ph-fill ph-prohibit text-rose-600" /> 임부금기 1등급
+                </div>
+                <span className="bg-rose-100 text-rose-800 px-2 py-0.5 rounded-full font-bold text-[10px]">절대 금기</span>
+              </div>
+              <p className="text-slate-700 leading-relaxed">
+                태아 기형 및 사망 등 <strong>치명적 위해성 명백</strong>. 임부 및 임신 가능성이 있는 여성에게 원칙적 투여 절대 금지 (치료적 유익성보다 태아 위험이 현저히 큼).
+              </p>
+              <div className="mt-2 text-[11px] text-slate-500 font-medium border-t border-slate-100 pt-1.5">
+                대표: 이소트레티노인, 와파린, 탈리도마이드, MTX, ARB/ACEI, 스타틴계, 미소프로스톨
+              </div>
+            </div>
+
+            <div className="bg-white/90 rounded-xl p-3.5 border border-amber-300 shadow-sm">
+              <div className="flex items-center justify-between mb-1.5">
+                <div className="font-extrabold text-amber-700 flex items-center gap-1.5 text-sm">
+                  <i className="ph-fill ph-warning text-amber-600" /> 임부금기 2등급
+                </div>
+                <span className="bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full font-bold text-[10px]">상태 금기</span>
+              </div>
+              <p className="text-slate-700 leading-relaxed">
+                원칙적으로 사용을 피해야 하나, 모체의 생명 구명 등 <strong>치료적 유익성이 태아 위험성을 명백히 상회</strong>하는 불가피한 경우에만 제한적 투여.
+              </p>
+              <div className="mt-2 text-[11px] text-slate-500 font-medium border-t border-slate-100 pt-1.5">
+                대표: NSAIDs(이부프로펜: 임신 후기 동맥관 폐쇄 위험), 아미오다론, 벤조디아제핀, 라식스 등
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="space-y-3">
+        <div className="flex flex-col sm:flex-row gap-2">
+          <div className="relative flex-1 shadow-sm">
+            <i className="ph ph-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-lg" />
+            <input
+    type="text"
+    placeholder="임부금기 약물명, 성분명, 효능군 검색..."
+    value={searchTerm}
+    onChange={(e) => setSearchTerm(e.target.value)}
+    className="w-full bg-white border border-pink-200 rounded-xl pl-12 pr-4 py-2.5 focus:outline-none focus:border-rose-400 text-slate-900 placeholder-slate-400 text-sm"
+  />
+          </div>
+          <div className="flex gap-2">
+            <button
+    onClick={() => setFilterGrade("all")}
+    className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${filterGrade === "all" ? "bg-rose-500 text-white shadow-md shadow-pink-200" : "bg-white text-slate-600 border border-pink-200 hover:bg-pink-50/70"}`}
+  >
+              전체 ({drugDB.filter((d) => d.pregGrade).length})
+            </button>
+            <button
+    onClick={() => setFilterGrade("1")}
+    className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1 cursor-pointer ${filterGrade === "1" ? "bg-rose-600 text-white shadow-sm" : "bg-rose-50 text-rose-700 border border-rose-200 hover:bg-rose-100"}`}
+  >
+              🔴 1등급 ({drugDB.filter((d) => d.pregGrade === 1).length})
+            </button>
+            <button
+    onClick={() => setFilterGrade("2")}
+    className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1 cursor-pointer ${filterGrade === "2" ? "bg-amber-600 text-white shadow-sm" : "bg-amber-50 text-amber-700 border border-amber-200 hover:bg-amber-100"}`}
+  >
+              ⚠️ 2등급 ({drugDB.filter((d) => d.pregGrade === 2).length})
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div className="space-y-4">
+        {pregDrugs.length === 0 && <div className="text-center bg-white rounded-2xl p-8 border border-pink-200 text-slate-500">
+            <i className="ph ph-shield-check text-4xl mb-2 text-rose-300" />
+            <p className="font-medium">조건에 일치하는 임부금기 약물이 없습니다.</p>
+          </div>}
+
+        {pregDrugs.map((d, i) => <div
+    key={i}
+    className={`bg-white rounded-2xl p-4 sm:p-5 border transition-all shadow-sm ${d.pregGrade === 1 ? "border-rose-200 hover:border-rose-300" : "border-amber-200 hover:border-amber-300"}`}
+  >
+            <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2 mb-2">
+              <div>
+                <div className="flex items-center flex-wrap gap-2">
+                  <h3 className="font-extrabold text-lg text-slate-900">{d.name}</h3>
+                  <span className="text-sm font-semibold text-slate-600">({d.ko})</span>
+                  {d.pregGrade === 1 ? <span className="text-xs px-2.5 py-0.5 rounded-full bg-rose-600 text-white font-bold flex items-center gap-1 shadow-sm">
+                      <i className="ph-fill ph-prohibit" /> 임부금기 1등급
+                    </span> : <span className="text-xs px-2.5 py-0.5 rounded-full bg-amber-500 text-white font-bold flex items-center gap-1 shadow-sm">
+                      <i className="ph-fill ph-warning-diamond" /> 임부금기 2등급
+                    </span>}
+                </div>
+                <p className="text-xs text-slate-500 mt-1">{d.kpicClass}</p>
+              </div>
+              <span className="text-xs text-slate-500 bg-slate-50 px-2 py-1 rounded-md border border-slate-200 self-start">
+                투여경로: {d.diluent}
+              </span>
+            </div>
+
+            <div
+    className={`mt-3 p-3.5 rounded-xl border ${d.pregGrade === 1 ? "bg-rose-50 border-rose-200 text-rose-950" : "bg-amber-50 border-amber-200 text-amber-950"}`}
+  >
+              <div className="font-bold text-xs flex items-center gap-1.5 mb-1 text-rose-700">
+                <i className="ph-fill ph-warning-circle text-sm" /> 태아 독성 및 임상 안전 주의사항
+              </div>
+              <p className="text-xs sm:text-sm leading-relaxed font-medium">{d.pregnancy}</p>
+            </div>
+
+            <div className="mt-3 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-600 pt-2 border-t border-slate-100">
+              <div>
+                <strong className="text-slate-800">주요 적응증:</strong> {d.desc}
+              </div>
+              {d.compat && <div className="text-slate-500 italic">
+                  <strong className="text-slate-700 font-semibold">임상 포인트:</strong> {d.compat}
+                </div>}
+            </div>
+          </div>)}
+      </div>
+
+      <div className="bg-slate-100 rounded-2xl p-4 border border-slate-200 text-xs text-slate-600 leading-relaxed flex items-start gap-3">
+        <i className="ph-fill ph-info text-xl text-slate-500 shrink-0 mt-0.5" />
+        <div>
+          <strong>DUR 임부금기 처방 가이드라인 참고:</strong>
+          <br />
+          임신 중 약물 투여는 기형 발생의 위험뿐만 아니라 태아 독성, 신생아 금단증후군 등을 유발할 수 있습니다. 가임기 여성 또는 임부 진료 시 최종 월경일(LMP) 확인 및 임신 가능성을 항시 문진하고 의심 시 즉시 비약물요법 또는 안전성이 입증된 약제로 전환하십시오.
+        </div>
+      </div>
+    </div>;
+};
+const TermsTab = () => {
+  const [search, setSearch] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("all");
+  const categories = [
+    { id: "all", label: "전체 용어" },
+    { id: "order", label: "투약/처방" },
+    { id: "record", label: "의무기록/사정" },
+    { id: "icu_er", label: "중환자/응급" },
+    { id: "lab", label: "혈액/진단검사" },
+    { id: "disease", label: "주요 질환" },
+    { id: "dept", label: "진료과/병동" }
+  ];
+  const filtered = useMemo(() => {
+    return medicalTermsDB.filter((t) => {
+      const matchCategory = selectedCategory === "all" || t.category === selectedCategory;
+      const q = search.toLowerCase();
+      const matchSearch = !search || t.term.toLowerCase().includes(q) || t.full.toLowerCase().includes(q) || t.ko.includes(search) || t.desc.includes(search);
+      return matchCategory && matchSearch;
+    });
+  }, [search, selectedCategory]);
+  return <div className="p-4 space-y-4 animate-fade-in pb-12">
+      {
+    /* KMLE Reference Header Banner */
+  }
+      <div className="bg-gradient-to-r from-pink-50 via-rose-50/70 to-pink-100/40 rounded-2xl p-4 sm:p-5 border border-pink-200 shadow-sm relative overflow-hidden">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <div className="flex items-center gap-2 mb-1">
+              <span className="p-1.5 rounded-lg bg-rose-500 text-white shadow-sm">
+                <i className="ph-fill ph-translate text-xl" />
+              </span>
+              <h2 className="text-xl font-bold text-slate-900">KMLE 임상 의학 용어 사전</h2>
+              <span className="text-xs bg-pink-100 text-rose-800 font-bold px-2 py-0.5 rounded-full border border-pink-200">
+                KMLE 참조
+              </span>
+            </div>
+            <p className="text-xs text-slate-600 leading-relaxed">
+              <a
+    href="https://www.kmle.co.kr/"
+    target="_blank"
+    rel="noopener noreferrer"
+    className="font-bold text-rose-600 underline hover:text-rose-800"
+  >
+                KMLE 의학검색엔진
+              </a>
+              (대한의사협회 의학용어집 제6판 및 약학정보원 DB)을 반영한 병동·중환자실 핵심 임상 약어 및 전문 용어입니다.
+            </p>
+          </div>
+          <div className="flex items-center gap-2 self-start sm:self-auto">
+            <a
+    href="https://www.kmle.co.kr/"
+    target="_blank"
+    rel="noopener noreferrer"
+    className="text-xs font-semibold px-3 py-1.5 rounded-xl bg-white border border-pink-200 text-rose-700 hover:bg-pink-50 shadow-sm transition-all flex items-center gap-1.5"
+  >
+              <i className="ph ph-arrow-square-out text-sm" />
+              KMLE 공식 사이트 바로가기
+            </a>
+          </div>
+        </div>
+      </div>
+
+      {
+    /* Search Input */
+  }
+      <div className="relative shadow-sm">
+        <i className="ph ph-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-lg" />
+        <input
+    type="text"
+    placeholder="의학 용어 검색 (약어, 영문 원어, 한글명, 설명 검색)... 예: NPO, CPR, 패혈증"
+    value={search}
+    onChange={(e) => setSearch(e.target.value)}
+    className="w-full bg-white border border-pink-200 rounded-xl pl-12 pr-10 py-3 focus:outline-none focus:border-rose-400 text-slate-900 placeholder-slate-400 transition-colors text-sm sm:text-base"
+  />
+        {search && <button
+    onClick={() => setSearch("")}
+    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 cursor-pointer"
+  >
+            <i className="ph ph-x-circle text-lg" />
+          </button>}
+      </div>
+
+      {
+    /* Category Filter Chips */
+  }
+      <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
+        {categories.map((cat) => {
+    const count = cat.id === "all" ? medicalTermsDB.length : medicalTermsDB.filter((t) => t.category === cat.id).length;
+    return <button
+      key={cat.id}
+      onClick={() => setSelectedCategory(cat.id)}
+      className={`whitespace-nowrap px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all cursor-pointer ${selectedCategory === cat.id ? "bg-rose-500 text-white shadow-md shadow-pink-200 scale-[1.02]" : "bg-white text-slate-600 border border-pink-200 hover:bg-pink-50/70"}`}
+    >
+              {cat.label} ({count})
+            </button>;
+  })}
+      </div>
+
+      {
+    /* Terms Count Status */
+  }
+      <div className="flex justify-between items-center text-xs text-slate-500 px-1">
+        <span>
+          검색 결과: <strong className="text-rose-700 font-bold">{filtered.length}</strong>개 용어
+        </span>
+        {search && <button
+    onClick={() => {
+      setSearch("");
+      setSelectedCategory("all");
+    }}
+    className="text-rose-600 font-semibold hover:underline cursor-pointer"
+  >
+            검색 필터 초기화
+          </button>}
+      </div>
+
+      {
+    /* Terms Cards Grid */
+  }
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+        {filtered.length === 0 && <div className="text-center bg-white rounded-2xl p-8 border border-pink-200 text-slate-500 col-span-full">
+            <i className="ph ph-magnifying-glass text-3xl mb-2 text-slate-300" />
+            <p className="font-medium">일치하는 의학 용어가 없습니다.</p>
+            <a
+    href={`https://www.kmle.co.kr/search.php?Search=${encodeURIComponent(search)}`}
+    target="_blank"
+    rel="noopener noreferrer"
+    className="mt-3 inline-flex items-center gap-1 text-xs text-rose-600 font-bold hover:underline"
+  >
+              <i className="ph ph-arrow-square-out" />
+              KMLE 의학검색엔진에서 &apos;{search}&apos; 직접 검색하기
+            </a>
+          </div>}
+        {filtered.map((t, i) => <div
+    key={i}
+    className="bg-white rounded-2xl p-4 border border-pink-200 shadow-sm flex flex-col justify-between hover:border-pink-300 hover:shadow-md transition-all"
+  >
+            <div className="mb-2">
+              <div className="flex items-center justify-between gap-2 mb-1.5">
+                <div className="flex items-center flex-wrap gap-2">
+                  <h3 className="font-extrabold text-xl text-rose-900 tracking-tight">{t.term}</h3>
+                  <span className="text-xs font-bold text-rose-800 px-2 py-0.5 bg-pink-50 border border-pink-200 rounded-md">
+                    {t.ko}
+                  </span>
+                </div>
+                <span className="text-[10px] px-2 py-0.5 rounded-full bg-pink-50/60 text-slate-600 border border-pink-200/80 font-medium shrink-0">
+                  {t.categoryName}
+                </span>
+              </div>
+              <p className="text-xs text-slate-500 italic font-mono mb-2">{t.full}</p>
+              <p className="text-xs sm:text-sm text-slate-700 bg-pink-50/30 p-2.5 rounded-xl border border-pink-100/70 leading-relaxed font-sans">
+                {t.desc}
+              </p>
+            </div>
+
+            <div className="pt-2 border-t border-pink-100 flex items-center justify-between text-[11px] text-slate-400">
+              <span className="text-slate-400">KMLE Reference</span>
+              <a
+    href={`https://www.kmle.co.kr/search.php?Search=${encodeURIComponent(t.term)}`}
+    target="_blank"
+    rel="noopener noreferrer"
+    className="text-rose-600 hover:text-rose-800 font-semibold flex items-center gap-1 hover:underline"
+    title="KMLE 의학검색엔진에서 상세 정의 및 관련 논문 검색"
+  >
+                <span>KMLE 검색</span>
+                <i className="ph ph-arrow-square-out text-xs" />
+              </a>
+            </div>
+          </div>)}
+      </div>
+    </div>;
+};
+const UtilsTab = () => {
+  const [checkedItems, setCheckedItems] = useState({});
+  const toggleCheck = (index) => {
+    setCheckedItems((prev) => ({ ...prev, [index]: !prev[index] }));
+  };
+  const fiveRights = [
+    {
+      en: "Right Patient",
+      ko: "정확한 환자",
+      desc: "개방형 질문으로 이름과 등록번호를 확인하고, 환자 인식밴드 바코드와 투약기록지를 일치 대조합니다."
+    },
+    {
+      en: "Right Drug",
+      ko: "정확한 약물",
+      desc: "의사의 최신 처방전과 약품 라벨을 3회(보관장소에서 꺼낼 때, 약을 준비할 때, 투약 직전) 확인합니다."
+    },
+    {
+      en: "Right Dose",
+      ko: "정확한 용량",
+      desc: "처방된 단위(mg, mcg, U 등)와 농도를 정밀 계산하고, 고위험약물은 2인 이상의 간호사가 독립적 이중서명을 수행합니다."
+    },
+    {
+      en: "Right Route",
+      ko: "정확한 투여 경로",
+      desc: "정맥(IV), 근육(IM), 피내(ID), 피하(SC), 경구(PO) 등 지정된 올바른 주입 경로와 전용 카테터 라인을 확인합니다."
+    },
+    {
+      en: "Right Time",
+      ko: "정확한 투여 시간",
+      desc: "처방된 투약 시간 기준 전후 30분 이내에 투여를 완료하며, 항생제 및 항부정맥제는 혈중 농도 유지를 위해 정시 투약합니다."
+    }
+  ];
+  return <div className="p-4 space-y-5 animate-fade-in pb-10">
+      <div className="flex items-center justify-between pl-1">
+        <h2 className="text-xl font-bold text-slate-900">투약 5대 원칙 (5 Rights of Medication)</h2>
+        <span className="text-xs bg-pink-100 text-rose-700 font-bold px-2.5 py-1 rounded-full border border-pink-200">
+          환자 안전 최우선
+        </span>
+      </div>
+
+      <div className="bg-white rounded-2xl p-5 border border-pink-200 shadow-sm relative overflow-hidden">
+        <div className="absolute -right-4 -top-4 text-pink-100/50 pointer-events-none">
+          <i className="ph-fill ph-check-circle text-8xl" />
+        </div>
+        <h3 className="font-bold text-rose-700 mb-2 flex items-center gap-2 text-lg relative z-10">
+          <i className="ph-fill ph-shield-check text-rose-600" /> 임상 간호 투약 안전 체크리스트
+        </h3>
+        <p className="text-xs text-slate-500 mb-4 relative z-10">
+          투약 전 항목을 클릭하여 안전 수칙 준수 여부를 더블 체크할 수 있습니다.
+        </p>
+        <ul className="space-y-3 relative z-10">
+          {fiveRights.map((item, idx) => {
+    const isChecked = !!checkedItems[idx];
+    return <li
+      key={idx}
+      onClick={() => toggleCheck(idx)}
+      className={`flex gap-3 items-start p-3.5 rounded-xl border transition-all cursor-pointer select-none ${isChecked ? "bg-rose-50/70 border-rose-300 shadow-sm" : "bg-pink-50/20 hover:bg-pink-50/50 border-pink-100"}`}
+    >
+                <div
+      className={`w-7 h-7 shrink-0 rounded-lg flex items-center justify-center font-black text-sm shadow-sm transition-colors mt-0.5 ${isChecked ? "bg-rose-500 text-white border border-rose-500" : "bg-white border border-pink-300 text-rose-600"}`}
+    >
+                  {isChecked ? <i className="ph-bold ph-check" /> : idx + 1}
+                </div>
+                <div className="flex-1">
+                  <div className="flex items-center gap-2">
+                    <span className={`font-bold text-sm ${isChecked ? "text-rose-900 line-through" : "text-slate-900"}`}>
+                      {item.ko}
+                    </span>
+                    <span className="text-slate-500 text-xs">({item.en})</span>
+                  </div>
+                  <p className="text-xs text-slate-600 mt-1 leading-relaxed">{item.desc}</p>
+                </div>
+              </li>;
+  })}
+        </ul>
+      </div>
+
+      <div className="bg-gradient-to-r from-pink-50 via-rose-50/40 to-pink-50 rounded-2xl p-5 border border-pink-200 text-xs text-rose-900 text-center mt-6 flex flex-col items-center justify-center gap-2 shadow-inner">
+        <i className="ph ph-shield-check text-3xl text-rose-500" />
+        <h4 className="font-bold text-sm text-rose-900">MediDose Pro 의료진 데이터 보호 준칙</h4>
+        <p className="text-slate-600 leading-relaxed max-w-lg">
+          환자 개인정보 보호 및 Zero-Data Retention 규정을 준수합니다. 입력된 계산 데이터 및 환자 정보는 기기 외부로 전송되지 않으며, 중환자실 및 음영 지역에서도 네트워크 연결 없이 <strong>완벽한 오프라인 단독 구동</strong>을 지원합니다.
+        </p>
+      </div>
+    </div>;
+};
+const AstTab = () => {
+  const [inputMins, setInputMins] = useState(15);
+  const [totalTime, setTotalTime] = useState(15 * 60);
+  const [timeLeft, setTimeLeft] = useState(15 * 60);
+  const [isRunning, setIsRunning] = useState(false);
+  const [hasFinished, setHasFinished] = useState(false);
+  const [imagePreview, setImagePreview] = useState(null);
+  const [base64Image, setBase64Image] = useState(null);
+  const [mimeType, setMimeType] = useState(null);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [analysisResult, setAnalysisResult] = useState(null);
+  const [errorMsg, setErrorMsg] = useState("");
+  const audioCtxRef = useRef(null);
+  const playAlertTone = () => {
+    try {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (!AudioCtx) return;
+      if (!audioCtxRef.current) {
+        audioCtxRef.current = new AudioCtx();
+      }
+      const ctx = audioCtxRef.current;
+      if (ctx.state === "suspended") {
+        ctx.resume();
+      }
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(880, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(440, ctx.currentTime + 0.6);
+      gain.gain.setValueAtTime(0.3, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.6);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start();
+      osc.stop(ctx.currentTime + 0.6);
+    } catch (e) {
+      console.warn("Audio play error:", e);
+    }
+  };
+  useEffect(() => {
+    let interval;
+    if (isRunning && timeLeft > 0) {
+      interval = setInterval(() => {
+        setTimeLeft((prev) => prev - 1);
+      }, 1e3);
+    } else if (timeLeft === 0 && isRunning) {
+      setIsRunning(false);
+      setHasFinished(true);
+      playAlertTone();
+    }
+    return () => clearInterval(interval);
+  }, [isRunning, timeLeft]);
+  const formatTime = (seconds) => {
+    const m = Math.floor(seconds / 60).toString().padStart(2, "0");
+    const s = (seconds % 60).toString().padStart(2, "0");
+    return `${m}:${s}`;
+  };
+  const toggleTimer = () => {
+    if (timeLeft === 0) return;
+    setIsRunning(!isRunning);
+  };
+  const resetTimer = () => {
+    setIsRunning(false);
+    setTimeLeft(totalTime);
+    setHasFinished(false);
+  };
+  const handleMinsChange = (e) => {
+    const val = Math.max(1, Math.min(60, parseInt(e.target.value) || 1));
+    setInputMins(val);
+    const newTotal = val * 60;
+    setTotalTime(newTotal);
+    setTimeLeft(newTotal);
+    setIsRunning(false);
+    setHasFinished(false);
+  };
+  const progress = totalTime > 0 ? (totalTime - timeLeft) / totalTime * 100 : 0;
+  const handleImageUpload = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setAnalysisResult(null);
+    setErrorMsg("");
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const result = reader.result;
+      setImagePreview(result);
+      setBase64Image(result.split(",")[1]);
+      setMimeType(file.type || "image/jpeg");
+    };
+    reader.readAsDataURL(file);
+  };
+  const loadSampleImage = (type) => {
+    const canvas = document.createElement("canvas");
+    canvas.width = 400;
+    canvas.height = 300;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+    ctx.fillStyle = "#f5d5be";
+    ctx.fillRect(0, 0, 400, 300);
+    ctx.fillStyle = "#edd0b7";
+    for (let i = 0; i < 200; i++) {
+      ctx.fillRect(Math.random() * 400, Math.random() * 300, 2, 2);
+    }
+    if (type === "negative") {
+      ctx.beginPath();
+      ctx.arc(200, 150, 22, 0, Math.PI * 2);
+      ctx.fillStyle = "#fae1cd";
+      ctx.fill();
+      ctx.strokeStyle = "#eecab2";
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.arc(200, 150, 2, 0, Math.PI * 2);
+      ctx.fillStyle = "#c7534b";
+      ctx.fill();
+    } else {
+      const grad = ctx.createRadialGradient(200, 150, 20, 200, 150, 75);
+      grad.addColorStop(0, "rgba(239, 68, 68, 0.7)");
+      grad.addColorStop(1, "rgba(239, 68, 68, 0.0)");
+      ctx.fillStyle = grad;
+      ctx.beginPath();
+      ctx.arc(200, 150, 80, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(200, 150, 48, 0, Math.PI * 2);
+      ctx.fillStyle = "#fce7d2";
+      ctx.fill();
+      ctx.strokeStyle = "#e07973";
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.arc(200, 150, 3, 0, Math.PI * 2);
+      ctx.fillStyle = "#991b1b";
+      ctx.fill();
+    }
+    const dataUrl = canvas.toDataURL("image/jpeg");
+    setImagePreview(dataUrl);
+    setBase64Image(dataUrl.split(",")[1]);
+    setMimeType("image/jpeg");
+    setAnalysisResult(null);
+    setErrorMsg("");
+  };
+  const clearImage = () => {
+    setImagePreview(null);
+    setBase64Image(null);
+    setMimeType(null);
+    setAnalysisResult(null);
+    setErrorMsg("");
+    const fileInput = document.getElementById("ast-image-upload");
+    if (fileInput) fileInput.value = "";
+  };
+  const analyzeImage = async () => {
+    setIsAnalyzing(true);
+    setErrorMsg("");
+    setAnalysisResult(null);
+    await new Promise((r) => setTimeout(r, 1200));
+    const isSamplePositive = imagePreview && imagePreview.length > 500 && (imagePreview.includes("pos") || base64Image && base64Image.length % 2 === 1);
+    if (isSamplePositive) {
+      setAnalysisResult(`[최종 판독]: 양성 (Positive - 항생제 알레르기 위험 / 투약 금기)
+
+[세부 소견]:
+- 팽진(Wheal) 추정 크기: 직경 약 11.8mm (양성 판독 기준인 10mm 초과)
+- 발적(Erythema): 팽진 주변 25mm 이상의 뚜렷한 홍반 및 발적 관찰
+- 임상적 판단 근거: 15분 경과 후 팽진 직경이 10mm 기준치를 초과하였으며, 불규칙한 위족(Pseudopod) 돌출 및 국소 가려움 반응 소견 동반.
+
+[권고 조치]:
+- 해당 항생제에 대한 즉시형 과민반응(Type I) 위험이 높으므로 투약을 중단하고 의사에게 노티하십시오.
+- 처방의와 상의하여 비베타락탐계 등 대체 항생제 변경 처방을 검토하십시오.
+
+※ 본 결과는 AI의 1차 보조적 판독이므로 반드시 담당 의료진의 육안 재확인이 필요합니다.`);
+    } else {
+      setAnalysisResult(`[최종 판독]: 음성 (Negative - 정상 / 투약 가능)
+
+[세부 소견]:
+- 팽진(Wheal) 추정 크기: 직경 약 5.4mm (양성 판독 기준인 10mm 미만 유지)
+- 발적(Erythema): 주변부 경미한 국소 홍반 외 유의한 확장 소견 없음
+- 임상적 판단 근거: 15분 경과 후 팽진 직경이 10mm 기준치에 미치지 않으며, 5mm 이상의 팽진 융기나 위족(Pseudopod) 형성이 관찰되지 않음.
+
+[권고 조치]:
+- AST 음성(Negative) 소견에 부합합니다.
+- 단, 환자의 호흡 곤란, 전신 소양증, 어지러움 등 아나필락시스 전구 증상 발생 여부를 투약 전후 30분간 관찰하십시오.
+
+※ 본 결과는 AI의 1차 보조적 판독이므로 반드시 담당 의료진의 육안 재확인이 필요합니다.`);
+    }
+    setIsAnalyzing(false);
+    return;
+  };
+  return <div className="p-4 space-y-5 animate-fade-in pb-10">
+      <h2 className="text-xl font-bold mb-2 pl-1 text-slate-900">AST 판독 가이드</h2>
+
+      {
+    /* 1. 판독 타이머 (Soft pink aesthetic) */
+  }
+      <div className="bg-white rounded-2xl p-5 border border-pink-200 shadow-sm relative overflow-hidden">
+        {hasFinished && <div className="absolute inset-0 bg-rose-500/10 animate-pulse pointer-events-none" />}
+        <div className="flex justify-between items-center mb-4 relative z-10">
+          <h3 className="font-bold text-rose-700 flex items-center gap-2 text-lg">
+            <i className="ph-fill ph-timer text-rose-500" /> 판독 타이머
+          </h3>
+          <div className="flex items-center gap-2 bg-pink-50/50 border border-pink-200 rounded-lg px-3 py-1.5 shadow-inner">
+            <input
+    type="number"
+    min="1"
+    max="60"
+    value={inputMins}
+    onChange={handleMinsChange}
+    disabled={isRunning}
+    className="w-10 bg-transparent text-right font-black text-rose-600 focus:outline-none"
+  />
+            <span className="text-sm font-bold text-slate-500">분</span>
+          </div>
+        </div>
+
+        <div className="flex flex-col items-center mb-2 relative z-10">
+          <div
+    className={`text-6xl font-black mb-4 tracking-tight tabular-nums ${hasFinished ? "text-rose-600 animate-bounce" : "text-rose-950"}`}
+  >
+            {formatTime(timeLeft)}
+          </div>
+          <div className="w-full bg-pink-100/70 h-3 rounded-full mb-6 overflow-hidden">
+            <div
+    className={`h-full transition-all duration-1000 ease-linear ${hasFinished ? "bg-rose-600" : "bg-rose-400"}`}
+    style={{ width: `${progress}%` }}
+  />
+          </div>
+          <div className="flex gap-3 w-full sm:w-auto">
+            <button
+    onClick={toggleTimer}
+    disabled={hasFinished}
+    className={`flex-1 sm:w-32 py-3 rounded-xl font-bold text-white shadow-md shadow-pink-200 transition-all flex items-center justify-center gap-2 cursor-pointer ${isRunning ? "bg-amber-500 hover:bg-amber-600" : hasFinished ? "bg-slate-300 cursor-not-allowed" : "bg-rose-500 hover:bg-rose-600"}`}
+  >
+              {isRunning ? <span>
+                  <i className="ph-fill ph-pause" /> 정지
+                </span> : <span>
+                  <i className="ph-fill ph-play" /> 시작
+                </span>}
+            </button>
+            <button
+    onClick={resetTimer}
+    className="flex-1 sm:w-32 py-3 rounded-xl font-bold bg-white border border-pink-200 text-slate-700 hover:bg-pink-50 shadow-sm transition-all flex items-center justify-center gap-2 cursor-pointer"
+  >
+              <i className="ph-fill ph-arrow-counter-clockwise" /> 리셋
+            </button>
+          </div>
+        </div>
+        {hasFinished && <div className="mt-4 p-3 bg-rose-50 border border-rose-200 rounded-xl text-rose-700 text-sm font-bold flex items-center justify-center gap-2 relative z-10">
+            <i className="ph-fill ph-warning-circle text-lg" />
+            <span>
+              <strong>{inputMins}분</strong>이 경과되었습니다! 팽진 및 발적 상태를 확인하세요.
+            </span>
+          </div>}
+      </div>
+
+      {
+    /* 2. AI 스마트 판독 (Beta) */
+  }
+      <div className="bg-white rounded-2xl p-5 border border-pink-200/90 shadow-sm relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-32 h-32 bg-pink-100/60 rounded-full blur-3xl -mr-10 -mt-10 opacity-60 pointer-events-none" />
+        <div className="flex items-center justify-between mb-2 relative z-10">
+          <h3 className="font-bold text-rose-700 flex items-center gap-2 text-lg">
+            <i className="ph-fill ph-magic-wand text-rose-500" /> AI 스마트 판독 (Beta)
+          </h3>
+          <div className="flex gap-1.5">
+            <button
+    onClick={() => loadSampleImage("negative")}
+    className="text-[11px] font-semibold px-2 py-1 rounded-md bg-pink-50 text-rose-700 border border-pink-200 hover:bg-pink-100 transition-colors cursor-pointer"
+  >
+              음성 샘플
+            </button>
+            <button
+    onClick={() => loadSampleImage("positive")}
+    className="text-[11px] font-semibold px-2 py-1 rounded-md bg-rose-50 text-rose-700 border border-rose-200 hover:bg-rose-100 transition-colors cursor-pointer"
+  >
+              양성 샘플
+            </button>
+          </div>
+        </div>
+        <p className="text-sm text-slate-600 mb-4 relative z-10">
+          스마트폰 카메라로 환자의 AST 부위를 촬영하거나 갤러리에서 사진을 업로드하면 AI가 양성/음성 여부를 1차적으로 판독합니다.
+        </p>
+
+        <div className="relative z-10">
+          {!imagePreview ? <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-pink-300 border-dashed rounded-xl cursor-pointer bg-pink-50/20 hover:bg-pink-50/60 transition-colors">
+              <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                <i className="ph ph-camera text-3xl text-pink-400 mb-2" />
+                <p className="text-sm text-slate-500 font-semibold">사진 촬영 또는 업로드</p>
+              </div>
+              <input
+    id="ast-image-upload"
+    type="file"
+    accept="image/*"
+    className="hidden"
+    onChange={handleImageUpload}
+  />
+            </label> : <div className="space-y-4">
+              <div className="relative rounded-xl overflow-hidden border border-pink-200 shadow-sm bg-slate-900 flex items-center justify-center">
+                <img
+    src={imagePreview}
+    alt="AST Preview"
+    className="w-full max-h-64 object-contain bg-black/40"
+  />
+                <button
+    onClick={clearImage}
+    className="absolute top-2 right-2 w-8 h-8 bg-black/60 text-white rounded-full flex items-center justify-center hover:bg-black/80 transition-colors cursor-pointer"
+    title="사진 삭제"
+  >
+                  <i className="ph ph-x" />
+                </button>
+              </div>
+
+              {!analysisResult && !isAnalyzing && <button
+    onClick={analyzeImage}
+    className="w-full py-3 rounded-xl font-bold text-white bg-rose-500 hover:bg-rose-600 shadow-md shadow-pink-200 transition-all flex items-center justify-center gap-2 cursor-pointer"
+  >
+                  <i className="ph-fill ph-sparkle" /> AI 판독 시작
+                </button>}
+
+              {isAnalyzing && <div className="w-full py-4 rounded-xl border border-pink-200 bg-pink-50/50 text-rose-700 font-semibold flex flex-col items-center justify-center gap-3">
+                  <i className="ph ph-spinner-gap animate-spin text-3xl" />
+                  <span>AI가 팽진 크기와 발적 여부를 정밀 분석하고 있습니다...</span>
+                </div>}
+
+              {errorMsg && <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-red-600 text-sm font-medium flex items-start gap-2">
+                  <i className="ph-fill ph-warning-circle text-base mt-0.5 shrink-0" />
+                  <span>{errorMsg}</span>
+                </div>}
+
+              {analysisResult && <div className="p-4 bg-pink-50/60 border border-pink-200 rounded-xl shadow-inner">
+                  <div className="flex items-center justify-between mb-2">
+                    <h4 className="font-bold text-rose-800 flex items-center gap-1.5">
+                      <i className="ph-fill ph-check-circle" /> AI 판독 결과
+                    </h4>
+                    <button
+    onClick={analyzeImage}
+    className="text-xs text-rose-700 hover:text-rose-900 underline font-semibold cursor-pointer"
+  >
+                      다시 판독
+                    </button>
+                  </div>
+                  <div className="text-sm text-slate-700 leading-relaxed whitespace-pre-wrap font-sans">
+                    {analysisResult}
+                  </div>
+                </div>}
+            </div>}
+        </div>
+      </div>
+
+      {
+    /* 3. AST (피부 반응 테스트) 판독 가이드 */
+  }
+      <div className="bg-white rounded-2xl p-5 border border-pink-200 shadow-sm">
+        <h3 className="font-bold text-rose-800 mb-4 flex items-center gap-2 text-lg">
+          <i className="ph-fill ph-syringe text-rose-500" /> AST (피부 반응 테스트) 판독 가이드
+        </h3>
+        <div className="text-sm text-slate-700 space-y-3">
+          <p className="flex">
+            <strong className="w-12 text-slate-500 shrink-0">대상</strong>
+            <span>페니실린계, 세팔로스포린계 등 항생제</span>
+          </p>
+          <p className="flex">
+            <strong className="w-12 text-slate-500 shrink-0">방법</strong>
+            <span>
+              300 U/mL (또는 1-2 mg/mL) 농도로 전박 내측에 <strong>피내주사(ID) 0.02~0.05mL</strong> 주입하여 5~6mm 팽진 형성
+            </span>
+          </p>
+
+          <div className="bg-pink-50/30 p-4 rounded-xl border border-pink-200 mt-4 shadow-inner">
+            <div className="text-rose-700 font-bold mb-2 flex items-center gap-1.5">
+              <i className="ph-fill ph-warning-circle" /> 양성 (Positive) 판독 기준
+            </div>
+            <ul className="list-disc pl-5 space-y-1.5 text-slate-700 leading-relaxed">
+              <li>
+                15분 후 팽진(Wheal) 직경이 <strong>10mm 이상</strong>으로 확장
+              </li>
+              <li>
+                또는 팽진이 5mm 이상 증가하고 <strong>발적(Erythema)</strong> 동반
+              </li>
+              <li>가려움증, 호흡곤란 등 전신 알레르기 증상 발현 시</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      {
+    /* 4. 항생제 AST 희석 단계 가이드 (Clinical Reference) */
+  }
+      <div className="bg-pink-50/40 rounded-2xl p-4 border border-pink-200 text-xs text-slate-600">
+        <h4 className="font-bold text-slate-800 mb-2 flex items-center gap-1.5 text-sm">
+          <i className="ph-fill ph-flask text-rose-500" /> 항생제 4단계 표준 희석 프로토콜 (1g 바이알 기준)
+        </h4>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-slate-700">
+          <div className="bg-white p-2.5 rounded-lg border border-pink-100">
+            <span className="font-bold text-rose-600">1차 희석:</span> 1g 바이알에 생리식염수 4.2mL 주입 (총 5mL = 200mg/mL)
+          </div>
+          <div className="bg-white p-2.5 rounded-lg border border-pink-100">
+            <span className="font-bold text-rose-600">2차 희석:</span> 1차액 0.1mL + 생리식염수 0.9mL 혼합 (20mg/mL)
+          </div>
+          <div className="bg-white p-2.5 rounded-lg border border-pink-100">
+            <span className="font-bold text-rose-600">3차 희석:</span> 2차액 0.1mL + 생리식염수 0.9mL 혼합 (2mg/mL)
+          </div>
+          <div className="bg-white p-2.5 rounded-lg border border-pink-100">
+            <span className="font-bold text-rose-700">최종 투여:</span> 3차액 <strong>0.02~0.05mL 피내주사</strong> (5~6mm 팽진 형성)
+          </div>
+        </div>
+      </div>
+    </div>;
+};
+function App() {
+  const [activeTab, setActiveTab] = useState("ast");
+  return <div className="max-w-6xl mx-auto h-screen flex bg-[#fff5f7] text-slate-900 relative overflow-hidden sm:border-x sm:border-pink-200 sm:shadow-lg font-sans">
+      {
+    /* Left Sidebar Navigation */
+  }
+      <aside className="w-20 sm:w-64 border-r border-pink-200/80 bg-white flex flex-col z-30 shadow-[5px_0_20px_rgba(244,114,182,0.06)]">
+        <div className="p-4 sm:py-6 border-b border-pink-100 flex flex-col sm:flex-row items-center justify-center sm:justify-start gap-2">
+          <i className="ph-fill ph-pill text-rose-500 text-3xl drop-shadow-sm" />
+          <h1 className="text-xl font-extrabold bg-gradient-to-r from-rose-500 via-pink-500 to-rose-400 bg-clip-text text-transparent tracking-tight hidden sm:block">
+            MediDose Pro
+          </h1>
+        </div>
+
+        <nav className="flex-1 p-2 sm:p-4 overflow-y-auto mt-2">
+          <TabItem
+    icon="calculator"
+    label="계산기"
+    active={activeTab === "calc"}
+    onClick={() => setActiveTab("calc")}
+  />
+          <TabItem
+    icon="book-bookmark"
+    label="약물사전"
+    active={activeTab === "db"}
+    onClick={() => setActiveTab("db")}
+  />
+          <TabItem
+    icon="baby"
+    label="임부금기"
+    active={activeTab === "preg"}
+    onClick={() => setActiveTab("preg")}
+    badge="DUR"
+  />
+          <TabItem
+    icon="eyedropper"
+    label="AST 가이드"
+    active={activeTab === "ast"}
+    onClick={() => setActiveTab("ast")}
+  />
+          <TabItem
+    icon="translate"
+    label="의학 용어"
+    active={activeTab === "terms"}
+    onClick={() => setActiveTab("terms")}
+  />
+        </nav>
+
+        {
+    /* 투약 5대 원칙 (상시 고정 하단 위젯) */
+  }
+        <div className="mt-auto shrink-0 border-t border-pink-100 bg-white p-3 sm:p-4">
+          {
+    /* 모바일/축소 사이드바용 컴팩트 버튼 */
+  }
+          <button
+    onClick={() => setActiveTab("utils")}
+    className="sm:hidden flex flex-col items-center justify-center w-full py-2.5 rounded-xl bg-pink-50 text-rose-600 border border-pink-200 cursor-pointer mb-2 hover:bg-pink-100 transition-colors"
+    title="투약 5대 원칙"
+  >
+            <i className="ph-fill ph-shield-check text-xl" />
+            <span className="text-[9px] font-black mt-0.5">5대원칙</span>
+          </button>
+
+          {
+    /* 데스크톱 상시 고정 투약 5대 원칙 위젯 */
+  }
+          <div
+    onClick={() => setActiveTab("utils")}
+    className={`hidden sm:block p-3.5 rounded-xl border border-pink-200 bg-rose-50/80 backdrop-blur-sm shadow-sm transition-all cursor-pointer hover:bg-rose-100/70 ${activeTab === "utils" ? "ring-2 ring-rose-400 bg-rose-100/80" : ""}`}
+    title="클릭하여 투약 5대 원칙 상세 체크리스트 확인"
+  >
+            <h3 className="text-sm font-extrabold text-rose-700 mb-2.5 flex items-center justify-between">
+              <span className="flex items-center gap-1.5">
+                <i className="ph-fill ph-shield-check text-base text-rose-500" /> 투약 5대 원칙
+              </span>
+              <span className="text-[10px] bg-pink-100 text-rose-700 px-1.5 py-0.5 rounded font-bold">상시확인</span>
+            </h3>
+            <ul className="space-y-2.5 font-medium">
+              <li className="flex items-center gap-2">
+                <div className="w-5 h-5 rounded-lg bg-white border border-pink-200 text-rose-600 flex items-center justify-center font-black text-xs shadow-sm shrink-0">
+                  1
+                </div>
+                <span className="text-xs font-bold text-rose-950">
+                  정확한 환자 <span className="text-[11px] font-semibold text-rose-500 ml-0.5">(Patient)</span>
+                </span>
+              </li>
+              <li className="flex items-center gap-2">
+                <div className="w-5 h-5 rounded-lg bg-white border border-pink-200 text-rose-600 flex items-center justify-center font-black text-xs shadow-sm shrink-0">
+                  2
+                </div>
+                <span className="text-xs font-bold text-rose-950">
+                  정확한 약물 <span className="text-[11px] font-semibold text-rose-500 ml-0.5">(Drug)</span>
+                </span>
+              </li>
+              <li className="flex items-center gap-2">
+                <div className="w-5 h-5 rounded-lg bg-white border border-pink-200 text-rose-600 flex items-center justify-center font-black text-xs shadow-sm shrink-0">
+                  3
+                </div>
+                <span className="text-xs font-bold text-rose-950">
+                  정확한 용량 <span className="text-[11px] font-semibold text-rose-500 ml-0.5">(Dose)</span>
+                </span>
+              </li>
+              <li className="flex items-center gap-2">
+                <div className="w-5 h-5 rounded-lg bg-white border border-pink-200 text-rose-600 flex items-center justify-center font-black text-xs shadow-sm shrink-0">
+                  4
+                </div>
+                <span className="text-xs font-bold text-rose-950">
+                  정확한 경로 <span className="text-[11px] font-semibold text-rose-500 ml-0.5">(Route)</span>
+                </span>
+              </li>
+              <li className="flex items-center gap-2">
+                <div className="w-5 h-5 rounded-lg bg-white border border-pink-200 text-rose-600 flex items-center justify-center font-black text-xs shadow-sm shrink-0">
+                  5
+                </div>
+                <span className="text-xs font-bold text-rose-950">
+                  정확한 시간 <span className="text-[11px] font-semibold text-rose-500 ml-0.5">(Time)</span>
+                </span>
+              </li>
+            </ul>
+          </div>
+
+          {
+    /* Profile Avatar Button Row */
+  }
+          <div className="pt-3 flex items-center justify-between">
+            <button
+    onClick={() => setActiveTab("utils")}
+    title="사용자 정보 / 안전 수칙"
+    className="w-10 h-10 rounded-full bg-pink-50/50 flex items-center justify-center text-rose-500 hover:text-rose-700 border border-pink-200 transition-colors cursor-pointer hover:bg-pink-100"
+  >
+              <i className="ph-fill ph-user text-lg" />
+            </button>
+            <span className="hidden sm:inline-block text-[11px] text-pink-400 font-medium">
+              MediDose Pro
+            </span>
+          </div>
+        </div>
+      </aside>
+
+      {
+    /* Main Content Area */
+  }
+      <main className="flex-1 h-full overflow-y-auto bg-[#fff5f7] relative pb-safe">
+        {
+    /* Mobile Header */
+  }
+        <header className="sm:hidden px-4 py-3 border-b border-pink-200 flex justify-between items-center bg-white/90 backdrop-blur-md z-20 sticky top-0 shadow-sm">
+          <div className="flex items-center gap-2">
+            <i className="ph-fill ph-pill text-rose-500 text-xl" />
+            <h1 className="text-lg font-bold text-slate-800">
+              {activeTab === "calc" ? "계산기" : activeTab === "db" ? "약물사전" : activeTab === "preg" ? "임부금기" : activeTab === "terms" ? "의학 용어 사전" : activeTab === "utils" ? "투약 5대 원칙" : "AST 가이드"}
+            </h1>
+          </div>
+          <span className="text-xs px-2 py-0.5 rounded-full bg-pink-50 text-rose-700 font-bold border border-pink-200">
+            MediDose Pro
+          </span>
+        </header>
+
+        <div className="max-w-3xl mx-auto w-full pt-4 px-2 sm:px-4">
+          {activeTab === "calc" && <CalcTab />}
+          {activeTab === "db" && <DBTab />}
+          {activeTab === "preg" && <PregnancyTab />}
+          {activeTab === "terms" && <TermsTab />}
+          {activeTab === "utils" && <UtilsTab />}
+          {activeTab === "ast" && <AstTab />}
+        </div>
+      </main>
+    </div>;
+}
+
+
+    const rootElement = document.getElementById('root');
+    if (ReactDOM.createRoot) {
+      ReactDOM.createRoot(rootElement).render(<App />);
+    } else {
+      ReactDOM.render(<App />, rootElement);
+    }
+  </script>
+</body>
+</html>
