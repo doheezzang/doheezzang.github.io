@@ -201,423 +201,1348 @@ const icuDrugs = [
   }
 ];
 const drugDB = [
-  // 1. 순환기계용약
   {
-    name: "Norepinephrine",
-    ko: "노르에피네프린",
-    category: "cardio",
-    categoryName: "순환기계",
-    kpicClass: "순환기계 > 혈관수축제(승압제)",
-    class: "승압제 / 혈관수축제",
-    highRisk: true,
-    lasa: "에피네프린(Epinephrine)과 혼동 주의",
-    desc: "급성 저혈압 및 심인성/패혈성 쇼크 시 말초혈관 수축을 통한 강력한 혈압 상승 목적",
-    diluent: "D5W 권장 (수액 산화 방지, NS도 가능하나 D5W 우선)",
-    compat: "알칼리성 약물(탄산수소나트륨 등)과 배합 금지, 혈관외유출(Extravasation) 시 괴사 위험(펜톨라민 국소침윤)",
-    badge: "🔴 고위험",
-    pregnancy: "DUR 임부금기 2등급 (자궁 혈류 감소로 태아 저산소증 초래 가능, 생명 위협 시 제한적 사용)",
-    pregGrade: 2
+    "name": "Norepinephrine",
+    "ko": "노르에피네프린 (노르핀)",
+    "category": "cardio",
+    "categoryName": "순환기계",
+    "kpicClass": "순환기계질환용약 > 혈관수축제(승압제)",
+    "class": "Alpha/Beta-1 효능제 / 승압제",
+    "highRisk": true,
+    "lasa": "에피네프린(Epinephrine)과 명칭 혼동 주의",
+    "desc": "급성 저혈압 및 심인성·패혈성 쇼크 시 말초혈관 수축을 통한 강력한 혈압 상승 목적",
+    "diluent": "D5W 권장 (수액 산화 방지, NS도 가능하나 D5W 우선). C-line 중심정맥 투여 원칙",
+    "compat": "알칼리성 약물(탄산수소나트륨)과 배합 금기. 혈관외유출(Extravasation) 시 조직 괴사 위험 (펜톨라민 국소침윤)",
+    "badge": "🔴 고위험",
+    "pregnancy": "DUR 임부금기 2등급 (자궁 혈류 감소로 태아 저산소증 초래 가능, 생명 위협 시 제한적 사용)",
+    "pregGrade": 2
   },
   {
-    name: "Epinephrine",
-    ko: "에피네프린",
-    category: "cardio",
-    categoryName: "순환기계",
-    kpicClass: "순환기계 > 아드레날린 효능제",
-    class: "승압제 / 심폐소생",
-    highRisk: true,
-    lasa: "에페드린(Ephedrine), 노르에피네프린 혼동 주의",
-    desc: "심정지(CPR), 아나필락시스 쇼크, 중증 천식 발작 완화",
-    diluent: "NS, D5W",
-    compat: "알칼리성 용액에 급속히 불활성화되므로 혼합 금지, 심한 빈맥 및 부정맥 모니터링",
-    badge: "🔴 고위험",
-    pregnancy: "DUR 임부금기 2등급 (산모의 아나필락시스 및 심정지 등 응급 구명 상황에서만 필수 투여)",
-    pregGrade: 2
+    "name": "Epinephrine",
+    "ko": "에피네프린 (보스민)",
+    "category": "cardio",
+    "categoryName": "순환기계",
+    "kpicClass": "순환기계질환용약 > 아드레날린 효능제",
+    "class": "Alpha/Beta 교감신경 효능제 / 승압제",
+    "highRisk": true,
+    "lasa": "에페드린(Ephedrine), 노르에피네프린 혼동 주의",
+    "desc": "심정지(CPR), 아나필락시스 쇼크, 중증 급성 기관지 천식 발작 완화",
+    "diluent": "NS, D5W (CPR 시 1:1,000 원액 1mg IV 푸시 후 NS 20mL 플러시)",
+    "compat": "알칼리성 용액 혼합 시 급속히 불활성화. 심한 빈맥, 심실세동 모니터링",
+    "badge": "🔴 고위험",
+    "pregnancy": "DUR 임부금기 2등급 (산모의 아나필락시스 및 심정지 등 응급 구명 상황에서만 필수 투여)",
+    "pregGrade": 2
   },
   {
-    name: "Dopamine",
-    ko: "도파민",
-    category: "cardio",
-    categoryName: "순환기계",
-    kpicClass: "순환기계 > 강심제/승압제",
-    class: "승압제 / 강심제",
-    highRisk: true,
-    lasa: "도부타민(Dobutamine)과 명칭 혼동 주의",
-    desc: "쇼크, 심근경색으로 인한 핍뇨, 심부전 시 용량별 혈류 및 심수축력 개선",
-    diluent: "NS, D5W",
-    compat: "알칼리성 주사액(탄산수소나트륨) 배합 금기",
-    badge: "🔴 고위험"
+    "name": "Dopamine",
+    "ko": "도파민",
+    "category": "cardio",
+    "categoryName": "순환기계",
+    "kpicClass": "순환기계질환용약 > 강심제/승압제",
+    "class": "도파민 수용체 / 교감신경 효능제",
+    "highRisk": true,
+    "lasa": "도부타민(Dobutamine)과 명칭 혼동 주의",
+    "desc": "쇼크, 심근경색으로 인한 핍뇨, 심부전 시 용량별 혈류 및 심수축력 개선 (저용량 신혈류, 중용량 강심, 고용량 승압)",
+    "diluent": "NS, D5W (인퓨전 펌프 사용 필수)",
+    "compat": "알칼리성 주사액(탄산수소나트륨) 배합 금기, 중심정맥관 투여 권장",
+    "badge": "🔴 고위험"
   },
   {
-    name: "Dobutamine",
-    ko: "도부타민",
-    category: "cardio",
-    categoryName: "순환기계",
-    kpicClass: "순환기계 > 강심제(Beta-1 효능제)",
-    class: "강심제",
-    highRisk: true,
-    lasa: "도파민(Dopamine)과 명칭 혼동 주의",
-    desc: "급·만성 심부전, 심장 수술 후 심근 수축력 강화를 통한 심박출량 증가",
-    diluent: "NS, D5W",
-    compat: "헤파린, 탄산수소나트륨 등 알칼리성 제제 배합 금지",
-    badge: "🔴 고위험"
+    "name": "Dobutamine",
+    "ko": "도부타민",
+    "category": "cardio",
+    "categoryName": "순환기계",
+    "kpicClass": "순환기계질환용약 > 강심제(Beta-1 효능제)",
+    "class": "선택적 Beta-1 효능 강심제",
+    "highRisk": true,
+    "lasa": "도파민(Dopamine)과 명칭 혼동 주의",
+    "desc": "급·만성 심부전, 심장 수술 후 심근 수축력 강화를 통한 심박출량 증가",
+    "diluent": "NS, D5W (인퓨전 펌프 정밀 투여)",
+    "compat": "알칼리성 용액 및 헤파린과 배합 금기. 과도한 빈맥 주의",
+    "badge": "🔴 고위험"
   },
   {
-    name: "Amiodarone",
-    ko: "아미오다론 (코다론)",
-    category: "cardio",
-    categoryName: "순환기계",
-    kpicClass: "순환기계 > 항부정맥제(Class III)",
-    class: "항부정맥제",
-    highRisk: true,
-    desc: "심실성 부정맥(VF/VT), 심방세동(AFib) 리듬 조절 및 전환",
-    diluent: "반드시 D5W 사용 (NS 혼합 시 침전 발생으로 절대 금기)",
-    compat: "PVC 용기 흡착 위험(유리병 또는 Non-PVC 수액백/라인 사용 필수), 전해질(QTc 연장) 감시",
-    badge: "🔴 고위험",
-    pregnancy: "DUR 임부금기 2등급 (태아 갑상선 기능저하증, 갑상선종 및 서맥 유발 위험)",
-    pregGrade: 2
+    "name": "Nitroglycerin",
+    "ko": "니트로글리세린 (페르링가니트)",
+    "category": "cardio",
+    "categoryName": "순환기계",
+    "kpicClass": "순환기계질환용약 > 혈관확장제(질산염제제)",
+    "class": "정맥 확장제 / 항협심증약",
+    "highRisk": true,
+    "lasa": "나이트로프루사이드(Nitroprusside)와 혼동 주의",
+    "desc": "협심증 발작, 급성 심근경색, 울혈성 심부전, 수술 시 급성 고혈압 조절",
+    "diluent": "D5W, NS (차광 필수, 전용 비흡착 PVC-free 수액세트 사용)",
+    "compat": "실데나필 등 PDE-5 억제제와 병용 절대 금기(치명적 저혈압). 두통, 반사성 빈맥",
+    "badge": "🔴 고위험"
   },
   {
-    name: "Nitroglycerin",
-    ko: "니트로글리세린 (NTG)",
-    category: "cardio",
-    categoryName: "순환기계",
-    kpicClass: "순환기계 > 혈관확장제(질산염계)",
-    class: "혈관확장제",
-    highRisk: false,
-    desc: "불안정 협심증, 급성 심근경색에 따른 좌심실부전, 수술 시 급성 고혈압 조절",
-    diluent: "D5W, NS",
-    compat: "일반 PVC 세트에 40~80% 흡착되므로 반드시 전용 Non-PVC 수액세트 사용 및 차광 필수",
-    badge: "⚠️ 차광/Non-PVC"
+    "name": "Nicardipine",
+    "ko": "니카르디핀 (페르디핀)",
+    "category": "cardio",
+    "categoryName": "순환기계",
+    "kpicClass": "순환기계질환용약 > 칼슘채널차단제(CCB)",
+    "class": "DHP계 CCB / 동맥확장제",
+    "highRisk": true,
+    "lasa": "니페디핀(Nifedipine)과 명칭 혼동 주의",
+    "desc": "수술 시 이상 고혈압의 구급 처치, 고혈압성 응급증(Hypertensive Crisis)",
+    "diluent": "NS, D5W (1mg/mL 이하 농도로 희석 후 정맥 점적)",
+    "compat": "알칼리성 용액에서 침전 발생. 말초혈관 투여 시 혈전정맥염 위험으로 12시간마다 주사부위 교체 권장",
+    "badge": "🔴 고위험"
   },
   {
-    name: "Nicardipine",
-    ko: "니카르디핀 (페르디핀)",
-    category: "cardio",
-    categoryName: "순환기계",
-    kpicClass: "순환기계 > 칼슘채널차단제(CCB)",
-    class: "혈압강하제",
-    highRisk: false,
-    desc: "수술 전후 및 뇌혈관 질환에 따른 응급성 급성 고혈압의 신속한 조절",
-    diluent: "D5W, NS (최종 농도 0.1~0.2mg/mL 권장)",
-    compat: "말초정맥 투여 시 혈전성 정맥염 유발 위험이 높아 대정맥/중심정맥관 투여 또는 12시간마다 투여부위 교체 권장",
-    badge: ""
+    "name": "Amiodarone",
+    "ko": "아미오다론 (코다론)",
+    "category": "cardio",
+    "categoryName": "순환기계",
+    "kpicClass": "순환기계질환용약 > 부정맥용제 (Class III)",
+    "class": "칼륨채널차단 부정맥용제",
+    "highRisk": true,
+    "desc": "심실세동(VF), 무맥성 심실빈맥(pulseless VT), 심방세동 등 치명적 부정맥",
+    "diluent": "D5W 전용 (NS 희석 시 침전 형성 위험, 반드시 5% 포도당액 사용)",
+    "compat": "말초 투여 시 혈관염 유발, 중심정맥관 투여 권장, 인라인 필터 사용 권장. QT 연장 모니터링",
+    "badge": "🔴 고위험",
+    "pregnancy": "DUR 임부금기 2등급 (태아 갑상선 기능 저하 및 성장 지연 위험)",
+    "pregGrade": 2
   },
   {
-    name: "Adenosine",
-    ko: "아데노신",
-    category: "cardio",
-    categoryName: "순환기계",
-    kpicClass: "순환기계 > 항부정맥제",
-    class: "항부정맥제",
-    highRisk: true,
-    desc: "발작성 심실상성 빈맥(PSVT)의 동방결절 리듬으로의 신속한 정상화 전환",
-    diluent: "원액 그대로 투여 (희석하지 않음)",
-    compat: "반감기가 10초 미만으로 매우 짧으므로 중심정맥에 가까운 큰 혈관에 Rapid IV Push 직후 20mL NS 급속 플러시 필수",
-    badge: "🔴 Rapid Push"
-  },
-  // 2. 신경계 및 진정/진통/근이완용약
-  {
-    name: "Propofol",
-    ko: "프로포폴",
-    category: "neuro",
-    categoryName: "신경/진정/진통",
-    kpicClass: "신경계 > 전신마취제 / 진정제",
-    class: "전신마취 / 진정제",
-    highRisk: true,
-    desc: "전신마취 유도 및 유지, 중환자실(ICU) 인공호흡 환자의 진정 (PRIS: 프로포폴 주입 증후군 주의)",
-    diluent: "원액 투여 (또는 필요시 D5W 최소 희석, NS 희석 금기)",
-    compat: "지질 유화액 제제로 미생물 증식 위험 극대화 - 전용 단독 투여라인 사용 및 12시간 내 잔여액 전량 폐기",
-    badge: "🔴 고위험"
+    "name": "Adenosine",
+    "ko": "아데노신 (아데포스)",
+    "category": "cardio",
+    "categoryName": "순환기계",
+    "kpicClass": "순환기계질환용약 > 부정맥용제",
+    "class": "AV node 전도 차단제",
+    "highRisk": true,
+    "desc": "발작성 상심실성 빈맥(PSVT)의 동방결절 리듬으로의 신속한 전환",
+    "diluent": "원액(6mg/2mL)을 정맥로와 가장 가까운 부위에 1~2초 내 Rapid IV Push 후 즉시 NS 20mL 플러시 및 팔 거상",
+    "compat": "반감기가 10초 미만이므로 반드시 신속 주입. 투여 직후 일시적 심정지(Asystole) 경고",
+    "badge": "🔴 고위험"
   },
   {
-    name: "Midazolam",
-    ko: "미다졸람",
-    category: "neuro",
-    categoryName: "신경/진정/진통",
-    kpicClass: "신경계 > 벤조디아제핀계 진정제",
-    class: "최면진정제",
-    highRisk: false,
-    desc: "불안 완화, 수술 전 진정, ICU 기계환기 환자의 장·단기 진정",
-    diluent: "NS, D5W",
-    compat: "호흡억제 모니터링 필수, 길항제(Flumazenil) 즉시 준비, 알칼리 수액과 침전 형성 주의",
-    badge: "",
-    pregnancy: "DUR 임부금기 2등급 (임신 초기 기형 유발 위험 및 신생아 금단증후군/이완 유발)",
-    pregGrade: 2
+    "name": "Digoxin",
+    "ko": "디곡신",
+    "category": "cardio",
+    "categoryName": "순환기계",
+    "kpicClass": "순환기계질환용약 > 강심배당체",
+    "class": "Digitalis 제제 / 심근수축촉진제",
+    "highRisk": true,
+    "desc": "울혈성 심부전, 심방세동 및 조동에 의한 빈맥 조절",
+    "diluent": "경구제 / 주사액은 최소 4배 이상 NS 희석 후 5분 이상 서서히 주입",
+    "compat": "치료농도(0.8~2.0 ng/mL) 좁음. 투약 전 맥박 측정(60회 미만 시 보류). 저칼륨혈증 시 중독 위험 급증",
+    "badge": "🔴 고위험"
   },
   {
-    name: "Remifentanil",
-    ko: "레미펜타닐 (울티바)",
-    category: "neuro",
-    categoryName: "신경/진정/진통",
-    kpicClass: "신경계 > 마약성 진통제(μ-opioid agonist)",
-    class: "마약성 진통제",
-    highRisk: true,
-    lasa: "펜타닐, 서펜타닐 혼동 주의",
-    desc: "마취 도입/유지 및 ICU 기계호흡 환자의 초단시간 통증 조절 및 진정",
-    diluent: "멸균주사용수 용해 후 NS, D5W 희석",
-    compat: "주입 중단 시 수분 내 약효 소실되므로 통증 반동 주의, 혈액제제와 동일 라인 주입 금지",
-    badge: "🔴 마약/고위험"
+    "name": "Atropine",
+    "ko": "아트로핀 황산염",
+    "category": "cardio",
+    "categoryName": "순환기계",
+    "kpicClass": "순환기계질환용약 > 부교감신경차단제(항콜린제)",
+    "class": "항콜린제 / 서맥 치료제",
+    "highRisk": false,
+    "desc": "동방결절 부전 및 방실차단에 의한 증상성 서맥, 수술 전 분비물 억제, 유기인계 농약 중독 해독",
+    "diluent": "원액 IV Push (서맥 시 최소 0.5mg 이상 투여, 저용량 투여 시 역설적 서맥 유발 주의)",
+    "compat": "녹내장, 전립선비대증 환자 금기. 구갈, 산동, 요저류, 빈맥 발생 주의"
   },
   {
-    name: "Fentanyl",
-    ko: "펜타닐",
-    category: "neuro",
-    categoryName: "신경/진정/진통",
-    kpicClass: "신경계 > 마약성 진통제",
-    class: "마약성 진통제",
-    highRisk: true,
-    desc: "심한 급만성 통증, 수술 중/후 보조 진통 (모르핀의 50~100배 역가)",
-    diluent: "NS, D5W",
-    compat: "급속 주입 시 흉벽 강직(Chest wall rigidity) 및 호흡정지 위험, 길항제(Naloxone) 구비",
-    badge: "🔴 마약/고위험",
-    pregnancy: "DUR 임부금기 2등급 (태반 통과로 인한 신생아 호흡억제 및 장기 사용 시 금단증상 주의)",
-    pregGrade: 2
+    "name": "Amlodipine",
+    "ko": "암로디핀 (노바스크)",
+    "category": "cardio",
+    "categoryName": "순환기계",
+    "kpicClass": "순환기계질환용약 > 혈압강하제 > 칼슘채널차단제(CCB)",
+    "class": "Dihydropyridine계 CCB",
+    "highRisk": false,
+    "desc": "본태성 고혈압, 만성 안정형 협심증 및 혈관경련성 협심증(변이형)",
+    "diluent": "경구 투여 (식사와 무관하게 1일 1회 복용)",
+    "compat": "말초부종, 두통, 홍조, 어지럼증. 자몽주스와 동시 복용 시 혈중 농도 상승 주의"
   },
   {
-    name: "Vecuronium",
-    ko: "베쿠로늄",
-    category: "neuro",
-    categoryName: "신경/진정/진통",
-    kpicClass: "근골격계/마취 > 비탈분극성 근이완제",
-    class: "근이완제(신경근차단)",
-    highRisk: true,
-    desc: "기관내삽관, 전신마취 시 골격근 이완 및 인공호흡 순응 유도",
-    diluent: "멸균주사용수로 완전 용해 후 NS, D5W 혼합",
-    compat: "의식 진정 없이 절대 단독 투여 금지! 반드시 자가호흡 정지 대비 인공호흡기 연결 환자에게만 투여",
-    badge: "🔴 고위험"
-  },
-  // 3. 항생물질 및 항균제
-  {
-    name: "Vancomycin",
-    ko: "반코마이신",
-    category: "anti",
-    categoryName: "항생물질",
-    kpicClass: "항병원체 > 글리코펩티드계 항생제",
-    class: "항생물질(MRSA)",
-    highRisk: true,
-    desc: "MRSA(메티실린 내성 포도구균), 중증 세균성 감염증, 위막성 대장염",
-    diluent: "NS, D5W (최종 농도 5mg/mL 이하 권장)",
-    compat: "급속 투여 시 히스타민 유리로 인한 레드맨 증후군(Red Man Syndrome) 및 쇼크 유발 -> 반드시 최소 60분 이상 서서히 주입, 신독성/이독성 예방 TDM 필수",
-    badge: "🔴 TDM필수"
+    "name": "Losartan",
+    "ko": "로사르탄 (코자)",
+    "category": "cardio",
+    "categoryName": "순환기계",
+    "kpicClass": "순환기계질환용약 > 안지오텐신II 수용체 길항제(ARB)",
+    "class": "ARB계 혈압강하제",
+    "highRisk": false,
+    "desc": "고혈압, 고혈압을 동반한 제2형 당뇨병성 신증 환자의 신장 보호",
+    "diluent": "경구 투여 (1일 1회 50mg~100mg)",
+    "compat": "칼륨 보존성 이뇨제 및 칼륨 보충제와 병용 시 고칼륨혈증 위험. 신기능 및 혈중 칼륨 수치 모니터링",
+    "badge": "⚠️ 임부금기 2등급",
+    "pregnancy": "DUR 임부금기 2등급: 레닌-안지오텐신계 억제로 태아 신기능 손상, 양수과소증, 신부전, 두개골 형성 부전 유발",
+    "pregGrade": 2
   },
   {
-    name: "Ceftriaxone",
-    ko: "세프트리아손 (로세핀)",
-    category: "anti",
-    categoryName: "항생물질",
-    kpicClass: "항병원체 > 세팔로스포린계 (3세대)",
-    class: "항생물질",
-    highRisk: false,
-    desc: "폐렴, 뇌수막염, 요로감염, 복강내 감염 등 광범위 감염증",
-    diluent: "NS, D5W",
-    compat: "★치명적 금기: 칼슘 함유 수액(Hartmann 용액, 링거액, TPN 등)과 혼합 또는 동일 정맥라인 동시/연속 주입 시 칼슘-세프트리아손 불용성 침전 석출로 사망 위험",
-    badge: "⚠️ 칼슘혼합절대금기"
+    "name": "Candesartan",
+    "ko": "칸데사르탄 (아타칸)",
+    "category": "cardio",
+    "categoryName": "순환기계",
+    "kpicClass": "순환기계질환용약 > 안지오텐신II 수용체 길항제(ARB)",
+    "class": "ARB계 혈압강하제",
+    "highRisk": false,
+    "desc": "본태성 고혈압, 심부전(좌심실 수축기능 부전 환자의 심혈관 사망률 감소)",
+    "diluent": "경구 투여 (1일 1회)",
+    "compat": "고칼륨혈증, 저혈압 유의. 임신 진단 시 즉시 복용 중단",
+    "badge": "⚠️ 임부금기 2등급",
+    "pregnancy": "DUR 임부금기 2등급: 임신 2·3기 투여 시 태아 기형 및 사망 위험",
+    "pregGrade": 2
   },
   {
-    name: "Meropenem",
-    ko: "메로페넴",
-    category: "anti",
-    categoryName: "항생물질",
-    kpicClass: "항병원체 > 카바페넴계 항생제",
-    class: "광범위 항생제",
-    highRisk: false,
-    desc: "패혈증, 원내폐렴, 중증 복강내 감염 등 다제내성 그람음성균 감염증",
-    diluent: "NS, D5W (조제 후 실온 안정성이 낮으므로 즉시 투여)",
-    compat: "보통 30분~3시간에 걸쳐 점적 주입, 발작 병력 환자 주의 깊게 관찰",
-    badge: ""
+    "name": "Enalapril",
+    "ko": "에날라프릴 (레니텍)",
+    "category": "cardio",
+    "categoryName": "순환기계",
+    "kpicClass": "순환기계질환용약 > ACE 억제제(ACEI)",
+    "class": "ACE 저해제",
+    "highRisk": false,
+    "desc": "본태성 및 신혈관성 고혈압, 울혈성 심부전 보조요법, 좌심실 기능부전 무증상 환자",
+    "diluent": "경구 투여",
+    "compat": "마른 기침(Bradykinin 축적), 혈관부종(Angioedema), 고칼륨혈증 유의",
+    "badge": "⚠️ 임부금기 2등급",
+    "pregnancy": "DUR 임부금기 2등급: 임신 2기 이후 태아 신발육 저해, 양수과소증 유발",
+    "pregGrade": 2
   },
   {
-    name: "Piperacillin / Tazobactam",
-    ko: "피페라실린/타조박탐 (타조신)",
-    category: "anti",
-    categoryName: "항생물질",
-    kpicClass: "항병원체 > 페니실린 복합제",
-    class: "광범위 페니실린계",
-    highRisk: false,
-    desc: "녹농균(Pseudomonas aeruginosa) 감염, 원내폐렴, 복강내/비뇨기계 중증 감염",
-    diluent: "NS, D5W",
-    compat: "투여 전 반드시 피부반응검사(AST) 진행 필수! 아미노글리코사이드(토브라마이신 등)와 동일 용기 혼합 시 상호 불활성화",
-    badge: "💉 AST필수"
-  },
-  // 4. 이뇨/전해질/응급 및 호흡기/대사
-  {
-    name: "Potassium Chloride",
-    ko: "염화칼륨 (KCl)",
-    category: "resp_meta",
-    categoryName: "이뇨/전해질/응급",
-    kpicClass: "대사성의약품 > 무기질제제 (전해질 보정)",
-    class: "전해질 보충제",
-    highRisk: true,
-    desc: "저칼륨혈증(Hypokalemia)의 예방 및 교정",
-    diluent: "반드시 대용량 수액(NS, D5W 등)에 충분히 희석 혼합",
-    compat: "🔴 절대 정맥 직접 주사(Direct IV Push) 금지! (치명적 심정지 유발) 정맥 점적 시 최대 농도 40mEq/L, 투여속도 시간당 20mEq 이하 엄격 준수",
-    badge: "🔴 원액IV절대금기"
+    "name": "Carvedilol",
+    "ko": "카르베딜롤 (딜라트렌)",
+    "category": "cardio",
+    "categoryName": "순환기계",
+    "kpicClass": "순환기계질환용약 > 알파·베타 차단제",
+    "class": "비선택적 Alpha-1 / Beta 차단제",
+    "highRisk": false,
+    "desc": "본태성 고혈압, 만성 심부전, 심근경색 후 좌심실 기능부전",
+    "diluent": "경구 투여 (음식과 함께 복용 시 기립성 저혈압 감소)",
+    "compat": "서맥, 천식 환자 금기, 당뇨 환자 저혈당 증상 은폐 주의. 갑작스러운 투약 중단 금지(반동성 빈맥)",
+    "badge": "⚠️ 주의"
   },
   {
-    name: "Furosemide",
-    ko: "후로세미드 (라식스)",
-    category: "resp_meta",
-    categoryName: "이뇨/전해질/응급",
-    kpicClass: "비뇨생식기관 및 항문용약 > 루프 이뇨제",
-    class: "루프 이뇨제",
-    highRisk: false,
-    desc: "급·만성 심부전, 신부전, 간경변성 부종, 급성 폐부종의 체액 배출",
-    diluent: "NS 권장 (약알칼리성이므로 pH 5.5 이하 산성용액과 혼합 시 침전 발생)",
-    compat: "고용량 급속 정주시 영구적/일시적 청력 손실(이독성) 위험 있으므로 분당 4mg 이하 속도로 천천히 투여, 차광 보관",
-    badge: "⚠️ 이독성주의",
-    pregnancy: "DUR 임부금기 2등급 (태반 통과 및 양수량 감소 위험, 폐부종/심부전 등 필수 시 단기간)",
-    pregGrade: 2
+    "name": "Bisoprolol",
+    "ko": "비소프롤롤 (콩코르)",
+    "category": "cardio",
+    "categoryName": "순환기계",
+    "kpicClass": "순환기계질환용약 > 베타-1 선택적 차단제",
+    "class": "Beta-1 선택적 교감신경 차단제",
+    "highRisk": false,
+    "desc": "협심증, 고혈압, 좌심실 수축기능 부전이 있는 안정형 만성 심부전",
+    "diluent": "경구 투여 (1일 1회 아침 복용 권장)",
+    "compat": "심한 서맥, 심인성 쇼크 금기. 복용 전 심박수 및 혈압 확인 필수"
   },
   {
-    name: "Regular Insulin",
-    ko: "속효성 인슐린 (RI / 휴물린 R)",
-    category: "resp_meta",
-    categoryName: "이뇨/전해질/응급",
-    kpicClass: "대사성의약품 > 당뇨병용제",
-    class: "혈당강하제 (속효성)",
-    highRisk: true,
-    lasa: "초속효성, 혼합형, 지속형 인슐린과 명칭/단위 혼동 주의",
-    desc: "당뇨병성 케톤산증(DKA), 고삼투압성 고혈당 상태(HHS), 고칼륨혈증 응급치료(Glucose+RI 병용)",
-    diluent: "NS 권장 (100단위/100mL 등 1:1 농도로 인퓨전 펌프 주입)",
-    compat: "플라스틱 수액백 및 튜브에 흡착되므로 주입 시작 시 초기 50mL 버린 후 주입, 매시간 혈당(BST) 모니터링",
-    badge: "🔴 고위험"
+    "name": "Diltiazem",
+    "ko": "딜티아젬 (헤르벤)",
+    "category": "cardio",
+    "categoryName": "순환기계",
+    "kpicClass": "순환기계질환용약 > 칼슘채널차단제(Non-DHP CCB)",
+    "class": "Benzothiazepine계 CCB",
+    "highRisk": true,
+    "desc": "협심증, 본태성 고혈압, 발작성 상심실성 빈맥(PSVT) 및 심방세동 환자의 심박수 조절",
+    "diluent": "주사용은 NS 또는 D5W에 희석하여 서서히 주입. 경구 서방정은 부수지 않고 복용",
+    "compat": "2·3도 방실차단, 중증 서맥 금기. 베타차단제와 정맥 병용 시 심한 서맥 및 저혈압 주의",
+    "badge": "🔴 고위험"
   },
   {
-    name: "Atropine",
-    ko: "아트로핀",
-    category: "resp_meta",
-    categoryName: "이뇨/전해질/응급",
-    kpicClass: "신경계/자율신경 > 항콜린제 (부교감신경차단제)",
-    class: "부교감신경차단제",
-    highRisk: false,
-    desc: "동성 서맥, 방실전도장애, 마취전투약(분비물 억제), 유기인계 살충제 중독 시 해독",
-    diluent: "원액 IV 급속 투여 (또는 NS 희석)",
-    compat: "0.5mg 미만 소량 투여 시 오히려 중추성 서맥을 악화시킬 수 있으므로 성인 최소 0.5mg 이상 투여, 구갈/동공산대 모니터링",
-    badge: ""
-  },
-  // 5. 대표적 임부금기 약물 (DUR 1등급 & 2등급)
-  {
-    name: "Isotretinoin",
-    ko: "이소트레티노인 (로아큐탄 / 이소티논)",
-    category: "preg",
-    categoryName: "임부금기",
-    kpicClass: "피부질환용제 > 여드름 치료제 (비타민A 유도체)",
-    class: "여드름 치료제",
-    highRisk: true,
-    desc: "중증 난치성 결절성 여드름 치료. 투여 중 및 투여 종료 후 최소 1개월간 피임 필수 (임신예방프로그램 대상)",
-    diluent: "경구제 (식후 복용)",
-    compat: "임신부 및 임신 가능성이 있는 여성 투여 절대 금기 (치명적 최기형성)",
-    badge: "🔴 임부금기 1등급",
-    pregnancy: "DUR 임부금기 1등급 (절대금기): 태아 중추신경계, 안면(소이증), 심혈관계, 흉선 기형 등 극심한 최기형성 유발 및 자연유산율 급증. 투약 전·중 및 복용 중단 후 최소 1개월 이상 철저한 이중 피임 필수.",
-    pregGrade: 1
+    "name": "Isosorbide Dinitrate",
+    "ko": "이소소르비드 질산염 (이소켓 / 신단길)",
+    "category": "cardio",
+    "categoryName": "순환기계",
+    "kpicClass": "순환기계질환용약 > 혈관확장제",
+    "class": "질산염 제제",
+    "highRisk": false,
+    "desc": "협심증 예방 및 지속 치료, 심근경색 후 심부전 보조 치료",
+    "diluent": "경구제 / 설하정 / 주사제(차광, PVC-free 세트 권장)",
+    "compat": "발기부전치료제(실데나필, 타다라필 등) 병용 절대 금기. 내성 방지를 위해 10~12시간 무투약 간격 유지"
   },
   {
-    name: "Warfarin",
-    ko: "와파린",
-    category: "preg",
-    categoryName: "임부금기",
-    kpicClass: "혈액응고저지제 > 비타민K 길항제",
-    class: "항응고제",
-    highRisk: true,
-    desc: "정맥혈전증, 폐색전증, 심방세동 및 심장판막치환술 환자의 혈전색전증 예방 및 치료",
-    diluent: "경구제",
-    compat: "비타민K 함유 음식(녹색채소 등) 및 다수 약물과의 상호작용 주의 (INR 주기적 모니터링)",
-    badge: "🔴 임부금기 1등급",
-    pregnancy: "DUR 임부금기 1등급 (절대금기): 태아 와파린 증후군(Fetal Warfarin Syndrome - 비저형성증, 점상연골형성이상), 소두증, 실명, 두개내 출혈 유발. 임신 중 항응고 요법 필요 시 헤파린/LMWH으로 반드시 대체.",
-    pregGrade: 1
+    "name": "Heparin Sodium",
+    "ko": "헤파린 나트륨",
+    "category": "cardio",
+    "categoryName": "순환기계",
+    "kpicClass": "혈액 및 조혈기관용약 > 항응고제",
+    "class": "비분획 헤파린(UFH)",
+    "highRisk": true,
+    "lasa": "저용량 플러시용(100IU/mL)과 고용량 치료용(25,000IU/Vial) 절대 혼동 주의",
+    "desc": "혈전증 및 폐색전증 예방·치료, DIC, 체외순환 및 인공신장 투석 시 혈액응고 방지",
+    "diluent": "NS, D5W (정맥 지속 점적 시 인퓨전 펌프 필수)",
+    "compat": "aPTT 정기적 모니터링 (목표치 통상 1.5~2.5배). 헤파린 유인성 혈소판감소증(HIT) 주의. 과량 시 황산프로타민으로 중화",
+    "badge": "🔴 고위험"
   },
   {
-    name: "Methotrexate (MTX)",
-    ko: "메토트렉세이트",
-    category: "preg",
-    categoryName: "임부금기",
-    kpicClass: "항악성종양제 / 면역억제제 > 엽산 길항제",
-    class: "항암제 / 면역억제제",
-    highRisk: true,
-    desc: "급성 백혈병, 융모상피암, 중증 류마티스 관절염 및 건선, 자궁외임신 약물치료",
-    diluent: "PO / IV / IM",
-    compat: "골수억제, 간독성, 폐독성 감시 필요. 류마티스 처방 시 반드시 주 1회 용법 엄수",
-    badge: "🔴 임부금기 1등급",
-    pregnancy: "DUR 임부금기 1등급 (절대금기): 강력한 엽산 대사 저해로 태아 사망, 유산 및 태아 아미노프테린 증후군(두개골 발손상, 뇌류, 안면 두개기형, 사지 기형 등) 초래. 가임기 여성 처방 시 임신 여부 확인 필수.",
-    pregGrade: 1
+    "name": "Enoxaparin",
+    "ko": "에녹사파린 (크렉산)",
+    "category": "cardio",
+    "categoryName": "순환기계",
+    "kpicClass": "혈액 및 조혈기관용약 > 저분자량 헤파린(LMWH)",
+    "class": "LMWH 항혈전제",
+    "highRisk": true,
+    "desc": "정맥 혈전색전증(DVT/PE) 예방 및 치료, 급성 관상동맥증후군(UA/NSTEMI)",
+    "diluent": "피하주사(SC) 전용 (복부 외측 전피하에 주입, 주사 후 문지르지 않음. 프리필드시린지 공기방울 배출하지 않음)",
+    "compat": "척수/경막외 마취 시 혈종 위험(마비). 신기능 저하 환자 감량 필수",
+    "badge": "🔴 고위험"
   },
   {
-    name: "Losartan",
-    ko: "로사르탄 (코자)",
-    category: "preg",
-    categoryName: "임부금기",
-    kpicClass: "순환기계 > 안지오텐신II 수용체 차단제(ARB)",
-    class: "혈압강하제",
-    highRisk: false,
-    desc: "본태성 고혈압, 당뇨병성 신증 환자의 신장보호",
-    diluent: "경구제",
-    compat: "임신이 확인되면 즉시 투여를 중단하고 다른 계열의 강압제(라베탈롤, 메틸도파 등)로 전환 필수",
-    badge: "🔴 임부금기 1등급",
-    pregnancy: "DUR 임부금기 1등급 (임신 2~3분기 치명적): 레닌-안지오텐신계 저해로 태아 신기능 손상, 신부전, 양수과소증(Oligohydramnios), 두개골 형성부전, 폐발육부전 및 자궁내 사망 유발.",
-    pregGrade: 1
+    "name": "Warfarin",
+    "ko": "와파린 (쿠마딘)",
+    "category": "cardio",
+    "categoryName": "순환기계",
+    "kpicClass": "혈액 및 조혈기관용약 > 경구용 항응고제",
+    "class": "비타민 K 길항제(VKA)",
+    "highRisk": true,
+    "lasa": "용량별 색상 정밀 확인 (와파린 2mg, 5mg 혼동 주의)",
+    "desc": "심방세동, 기계판막 치환술 후, 정맥혈전증 및 폐색전증의 예방 및 치료",
+    "diluent": "경구 투여 (매일 동일 시간 복용, 통상 오후 5~6시 권장)",
+    "compat": "PT/INR 정기적 추적 (목표 INR 2.0~3.0). 비타민 K 풍부 음식(청국장, 시금치 등) 과다 섭취 주의. 과량 출혈 시 비타민 K1(Phytomenadione) 주사",
+    "badge": "🔴 임부금기 1등급",
+    "pregnancy": "DUR 임부금기 1등급: 태아와파린증후군(안면/골격 기형, 소뇌 형성 부전, 중추신경계 이상) 및 자연유산 유발",
+    "pregGrade": 1
   },
   {
-    name: "Atorvastatin",
-    ko: "아토르바스타틴 (리피토)",
-    category: "preg",
-    categoryName: "임부금기",
-    kpicClass: "고지혈증치료제 > HMG-CoA 환원효소 억제제 (Statin)",
-    class: "지질저하제",
-    highRisk: false,
-    desc: "원발성 고콜레스테롤혈증, 복합형 이상지질혈증 및 관상동맥질환 심혈관 위험 감소",
-    diluent: "경구제",
-    compat: "횡문근융해증 모니터링 (근육통, CPK 상승 확인), 자몽주스 병용 섭취 주의",
-    badge: "🔴 임부금기 1등급",
-    pregnancy: "DUR 임부금기 1등급 (절대금기): 콜레스테롤은 태아 세포막 형성, 호르몬 합성 및 신경계·골격계 발달에 필수적인 요소. HMG-CoA 합성 억제 시 태아 골격계 기형, 척추·사지 이상 및 발달 지연 치명적 손상.",
-    pregGrade: 1
+    "name": "Rivaroxaban",
+    "ko": "리바록사반 (자렐토)",
+    "category": "cardio",
+    "categoryName": "순환기계",
+    "kpicClass": "혈액 및 조혈기관용약 > 직접작용 경구항응고제(DOAC)",
+    "class": "Direct Factor Xa 억제제",
+    "highRisk": true,
+    "desc": "비판막성 심방세동 환자의 뇌졸중 및 전신 색전증 예방, DVT 및 PE 치료",
+    "diluent": "경구 투여 (15mg, 20mg 정제는 생체이용률 위해 반드시 음식과 함께 복용)",
+    "compat": "INR 모니터링 불필요. 출혈 징후 모니터링. 인공기계판막 환자 사용 금기",
+    "badge": "⚠️ 임부금기 2등급",
+    "pregnancy": "DUR 임부금기 2등급: 태반 통과 및 잠재적 출혈 위험",
+    "pregGrade": 2
   },
   {
-    name: "Thalidomide",
-    ko: "탈리도마이드",
-    category: "preg",
-    categoryName: "임부금기",
-    kpicClass: "면역조절제 / 항악성종양제",
-    class: "면역조절항암제",
-    highRisk: true,
-    desc: "다발골수종 치료제. 역사상 최악의 기형아 사태 유발 약물로 현재는 엄격한 관리 프로그램 하에만 투여 허가",
-    diluent: "경구제",
-    compat: "남녀 환자 모두 엄격한 피임 프로그램 이행 의무",
-    badge: "🔴 임부금기 1등급",
-    pregnancy: "DUR 임부금기 1등급 (절대금기): 단 1회의 복용으로도 태아의 사지단축증(해표지증, Phocomelia: 팔다리가 짧아지거나 결손), 귀/눈 결손, 선천성 심장 기형 유발. 대표적 최기형성 약물.",
-    pregGrade: 1
+    "name": "Apixaban",
+    "ko": "아픽사반 (엘리퀴스)",
+    "category": "cardio",
+    "categoryName": "순환기계",
+    "kpicClass": "혈액 및 조혈기관용약 > 직접작용 경구항응고제(DOAC)",
+    "class": "Direct Factor Xa 억제제",
+    "highRisk": true,
+    "desc": "비판막성 심방세동 환자 뇌졸중 예방, 심부정맥혈전증 예방 및 치료",
+    "diluent": "경구 투여 (1일 2회, 음식 섭취 무관)",
+    "compat": "신기능, 고령, 저체중 환자 감량 기준 확인. 침습적 시술 전 중단 기간 계산 필수",
+    "badge": "⚠️ 임부금기 2등급",
+    "pregnancy": "DUR 임부금기 2등급: 모체 및 태아 출혈 위험",
+    "pregGrade": 2
   },
   {
-    name: "Misoprostol",
-    ko: "미소프로스톨 (싸이토텍)",
-    category: "preg",
-    categoryName: "임부금기",
-    kpicClass: "소화기관용약 > 프로스타글란딘 E1 유도체",
-    class: "소화성궤양 / 자궁수축제",
-    highRisk: true,
-    desc: "NSAIDs 투여로 인한 위십이지장 궤양 예방 및 치료. 산과 영역에서는 통제된 환경에서 분만유도 목적으로 특수 사용되기도 함",
-    diluent: "경구제 / 질정",
-    compat: "임신 중 위장관 궤양 치료 목적 투여 절대 금기",
-    badge: "🔴 임부금기 1등급",
-    pregnancy: "DUR 임부금기 1등급 (절대금기): 강력한 자궁 수축을 유발하여 유산, 조산, 자궁 파열 및 뫼비우스 증후군(Moebius syndrome: 안면신경마비), 사지 결손 기형 초래. 위궤양 치료 목적 투여 절대 금기.",
-    pregGrade: 1
+    "name": "Aspirin",
+    "ko": "아스피린 프로텍트 (아스트릭스)",
+    "category": "cardio",
+    "categoryName": "순환기계",
+    "kpicClass": "혈액 및 조혈기관용약 > 항혈소판제",
+    "class": "COX-1 억제 항혈소판제",
+    "highRisk": false,
+    "desc": "심근경색, 뇌경색, 일과성 뇌허혈발작(TIA)의 재발 방지 및 심혈관 위험 감소",
+    "diluent": "경구 투여 (장용정은 부수지 않고 식후 물과 함께 삼킴)",
+    "compat": "위장관 궤양 및 출혈, 천식 발작 위험. 수술 7일 전 중단 여부 의사 확인",
+    "badge": "⚠️ 임부금기 2등급",
+    "pregnancy": "DUR 임부금기 2등급: 특히 임신 3기 태아 동맥관 조기폐쇄 및 분만 시 출혈 위험",
+    "pregGrade": 2
   },
   {
-    name: "Ibuprofen",
-    ko: "이부프로펜 (부루펜 / 애드빌)",
-    category: "preg",
-    categoryName: "임부금기",
-    kpicClass: "해열·진통·소염제 > 프로피온산계 NSAIDs",
-    class: "비스테로이드성 소염진통제",
-    highRisk: false,
-    desc: "관절염, 근육통, 두통 등 통증 및 염증 완화, 해열",
-    diluent: "경구제",
-    compat: "위장관 출혈 위험, 신장애 환자 주의",
-    badge: "⚠️ 임부금기 2등급",
-    pregnancy: "DUR 임부금기 2등급 (특히 임신 20주 이후 및 임신 3기): 태아 신기능 장애로 인한 양수과소증 및 임신 말기 투여 시 태아 동맥관 조기 폐쇄(Premature closure of ductus arteriosus), 지속성 폐고혈압 유발. 해열·진통 시 아세트아미노펜 권장.",
-    pregGrade: 2
+    "name": "Clopidogrel",
+    "ko": "클로피도그렐 (플라빅스)",
+    "category": "cardio",
+    "categoryName": "순환기계",
+    "kpicClass": "혈액 및 조혈기관용약 > 항혈소판제",
+    "class": "P2Y12 ADP 수용체 길항제",
+    "highRisk": false,
+    "desc": "급성 관상동맥증후군, 허혈성 뇌졸중 및 말초동맥질환 환자의 죽상동맥경화성 증상 개선",
+    "diluent": "경구 투여 (1일 1회 75mg)",
+    "compat": "오메프라졸 등 일부 PPI와 병용 시 대사 억제로 약효 감소 가능(판토프라졸 권장)",
+    "badge": "⚠️ 주의"
+  },
+  {
+    "name": "Tranexamic Acid",
+    "ko": "트라넥삼산 (트란사민)",
+    "category": "cardio",
+    "categoryName": "순환기계",
+    "kpicClass": "혈액 및 조혈기관용약 > 지혈제",
+    "class": "항플라스민 지혈제",
+    "highRisk": false,
+    "desc": "전신적·국소적 섬유소용해 항진과 관련된 출혈(외과 수술, 비출혈, 발치, 산후출혈 등)",
+    "diluent": "IV 서서히 주입 (1mL/min 이하, 급속 주입 시 저혈압 유발) 또는 경구",
+    "compat": "혈전색전증 기왕력자 주의. 신기능 장애 시 감량"
+  },
+  {
+    "name": "Phytomenadione",
+    "ko": "비타민 K1 주사",
+    "category": "cardio",
+    "categoryName": "순환기계",
+    "kpicClass": "비타민제 > 비타민 K 제제",
+    "class": "지용성 비타민 / 지혈제",
+    "highRisk": false,
+    "desc": "와파린 과량 투여에 의한 저프로트롬빈혈증 및 출혈, 신생아 출혈성 질환 예방",
+    "diluent": "SC 또는 IM 권장 (IV 주여 시 아나필락시스 유사 쇼크 위험으로 극히 서서히 투여)",
+    "compat": "와파린의 항응고 효과를 역전시킴. 차광 보관 필수"
+  },
+  {
+    "name": "Protamine Sulfate",
+    "ko": "프로타민 황산염",
+    "category": "cardio",
+    "categoryName": "순환기계",
+    "kpicClass": "혈액 및 조혈기관용약 > 헤파린 길항제",
+    "class": "헤파린 중화제",
+    "highRisk": true,
+    "desc": "헤파린 과량 투여로 인한 심한 출혈의 중화, 체외순환 심장수술 후 헤파린 효과 역전",
+    "diluent": "원액을 10분에 걸쳐 매우 서서히 IV 주입 (50mg 초과 주입 금지)",
+    "compat": "급속 투여 시 심각한 저혈압, 서맥, 폐고혈압 유발. 어류 알레르기 환자 과민반응 주의",
+    "badge": "🔴 고위험"
+  },
+  {
+    "name": "Morphine Sulfate",
+    "ko": "모르핀 황산염",
+    "category": "neuro",
+    "categoryName": "신경/진통",
+    "kpicClass": "신경계감각기관용약 > 마약성 진통제",
+    "class": "Opioid Mu 수용체 작용제",
+    "highRisk": true,
+    "lasa": "히드로모르폰(Hydromorphone)과 용량 체계 혼동 절대 금기 (히드로모르폰이 5~7배 강력)",
+    "desc": "중증의 암성 통증, 급성 심근경색 시 통증 및 호흡곤란, 수술 후 통증",
+    "diluent": "NS 희석하여 서서히 주입. PCA 사용 시 설정값 이중 확인",
+    "compat": "호흡억제(RR < 10회/분 모니터링), 변비, 오심, 저혈압. 과량 투여 시 해독제 날록손(Naloxone) 준비",
+    "badge": "🔴 마약·고위험"
+  },
+  {
+    "name": "Fentanyl",
+    "ko": "펜타닐 (구연산펜타닐 / 듀로제식 패취)",
+    "category": "neuro",
+    "categoryName": "신경/진통",
+    "kpicClass": "신경계감각기관용약 > 마약성 진통제",
+    "class": "합성 Opioid 진통제 (모르핀의 약 100배 효력)",
+    "highRisk": true,
+    "lasa": "수프렌타(Sufentanil), 알펜타닐과 효력 단위 혼동 주의",
+    "desc": "전신마취 유도 및 유지 보조, 중증 급만성 통증, PCA 통증 조절, 암성 통증 완화",
+    "diluent": "주사제는 NS 희석 정맥 주입. 패취제는 열 패드 접촉 금기(약물 급속 방출 위험)",
+    "compat": "호흡억제, 흉벽 강직(Chest wall rigidity - 급속 정주 시 발생 주의), 의식 저하 모니터링",
+    "badge": "🔴 마약·고위험"
+  },
+  {
+    "name": "Hydromorphone",
+    "ko": "히드로모르폰 (저니스타 / 딜라우디드)",
+    "category": "neuro",
+    "categoryName": "신경/진통",
+    "kpicClass": "신경계감각기관용약 > 마약성 진통제",
+    "class": "반합성 Opioid 진통제",
+    "highRisk": true,
+    "lasa": "모르핀(Morphine)과 동일 용량 투여 절대 금지 (치명적 과량 투여 위험)",
+    "desc": "마약성 진통제 치료를 요하는 중등도~중증의 만성 통증",
+    "diluent": "경구 서방정(부수거나 씹지 않음) / 주사제(IV 서서히 주입)",
+    "compat": "호흡수, 진정 척도(RASS), 동공 크기 모니터링",
+    "badge": "🔴 마약·고위험"
+  },
+  {
+    "name": "Oxycodone",
+    "ko": "옥시코돈 (옥시콘틴 / 타진 / 아이알코돈)",
+    "category": "neuro",
+    "categoryName": "신경/진통",
+    "kpicClass": "신경계감각기관용약 > 마약성 진통제",
+    "class": "Opioid 진통제",
+    "highRisk": true,
+    "desc": "비마약성 진통제로 조절되지 않는 중등도 및 중증 통증의 조절",
+    "diluent": "서방정(OxyContin)은 파쇄 금지. 속효정(IR)은 돌발통에 사용",
+    "compat": "변비 예방(완화제 동시 처방), 오심, 어지럼증, 약물 의존성 주의",
+    "badge": "🔴 마약·고위험"
+  },
+  {
+    "name": "Pethidine",
+    "ko": "페티딘 (데메롤)",
+    "category": "neuro",
+    "categoryName": "신경/진통",
+    "kpicClass": "신경계감각기관용약 > 마약성 진통제",
+    "class": "합성 마약성 진통제",
+    "highRisk": true,
+    "desc": "격심한 통증의 완화, 마취 전 투약 및 마취 보조, 수술 후 오한(Shivering) 억제",
+    "diluent": "IM 또는 NS 희석 후 매우 서서히 IV 주입",
+    "compat": "대사산물(노르페티딘) 축적으로 인한 중추신경계 독성(발작, 진전). 신부전 환자 및 장기 투여 금기",
+    "badge": "🔴 마약·고위험"
+  },
+  {
+    "name": "Tramadol",
+    "ko": "트라마돌 (트리돌)",
+    "category": "neuro",
+    "categoryName": "신경/진통",
+    "kpicClass": "신경계감각기관용약 > 중추성 진통제",
+    "class": "비마약성 중추성 진통제 / SNRI",
+    "highRisk": false,
+    "desc": "중등도~중증의 급·만성 통증 (진단 및 수술 후 통증)",
+    "diluent": "IV 주사 시 NS 100mL 혼합 점적 또는 천천히 2~3분간 정주 (급속 주입 시 심한 구역·구토 유발)",
+    "compat": "항우울제(SSRI/SNRI) 병용 시 세로토닌 증후군 및 발작 역치 저하 주의",
+    "badge": "⚠️ 주의"
+  },
+  {
+    "name": "Naloxone",
+    "ko": "날록손",
+    "category": "neuro",
+    "categoryName": "신경/진통",
+    "kpicClass": "신경계감각기관용약 > 마약 길항제",
+    "class": "Pure Opioid Antagonist",
+    "highRisk": true,
+    "desc": "천연 및 합성 마약성 진통제 과량 투여로 인한 호흡억제 및 혼수의 신속한 역전",
+    "diluent": "0.4mg 원액을 NS 9mL에 희석하여 0.04~0.08mg씩 호흡수 회복 시까지 2~3분 간격 적정",
+    "compat": "반감기가 30~90분으로 마약성 약물보다 짧으므로 환자가 다시 혼수에 빠지지 않는지 최소 2시간 이상 지속 모니터링",
+    "badge": "🔴 고위험"
+  },
+  {
+    "name": "Midazolam",
+    "ko": "미다졸람 (도미컴)",
+    "category": "neuro",
+    "categoryName": "신경/진통",
+    "kpicClass": "신경계감각기관용약 > 최면진정제",
+    "class": "단시간 작용 벤조디아제핀(BZD)",
+    "highRisk": true,
+    "desc": "수술 및 진단 시술 전 진정, 기계환기 환자의 진정, 간질지속상태(Status epilepticus)",
+    "diluent": "원액 또는 NS 희석 서서히 투여 (노인 및 쇠약 환자 감량)",
+    "compat": "호흡억제, 무호흡, 저혈압 유의. 산소포화도 및 기도확보 장비 필수. 해독제 플루마제닐 준비",
+    "badge": "🔴 향정·고위험"
+  },
+  {
+    "name": "Lorazepam",
+    "ko": "로라제팜 (아티반)",
+    "category": "neuro",
+    "categoryName": "신경/진통",
+    "kpicClass": "신경계감각기관용약 > 항불안제 / 진정제",
+    "class": "중간시간 작용 벤조디아제핀(BZD)",
+    "highRisk": true,
+    "desc": "불안 장애, 수술 전 진정, 급성 간질지속상태의 1차 응급 치료제",
+    "diluent": "IV 시 NS와 1:1 동량 희석 후 천천히 정주 (점도가 높아 침전 주의)",
+    "compat": "과도한 진정, 호흡억제. 알코올 및 중추신경억제제 병용 금기",
+    "badge": "🔴 향정·고위험"
+  },
+  {
+    "name": "Propofol",
+    "ko": "프로포폴 (디프리반)",
+    "category": "neuro",
+    "categoryName": "신경/진통",
+    "kpicClass": "신경계감각기관용약 > 전신마취제",
+    "class": "단시간 정맥마취제 / 진정제",
+    "highRisk": true,
+    "desc": "전신마취 유도 및 유지, 인공호흡 중인 중환자의 진정, 수술 및 시술 시 진정",
+    "diluent": "지질 에멀전 형태(원액 투여, 인퓨전 펌프 사용). 투여 전 흔들어 섞음",
+    "compat": "개봉 후 12시간 이내 사용(무방부제 지질제제로 미생물 번식 위험). 저혈압, 무호흡 주의. 대두/달걀 알레르기 확인",
+    "badge": "🔴 향정·고위험"
+  },
+  {
+    "name": "Dexmedetomidine",
+    "ko": "덱스메디토미딘 (프레세덱스)",
+    "category": "neuro",
+    "categoryName": "신경/진통",
+    "kpicClass": "신경계감각기관용약 > 진정제",
+    "class": "선택적 Alpha-2 아드레날린 수용체 작용제",
+    "highRisk": true,
+    "desc": "기계환기 중환자의 진정, 비삽관 시술 시 진정 (환자 자발호흡 보존 진정)",
+    "diluent": "NS에 희석하여 4mcg/mL 농도로 인퓨전 펌프 점적 주입",
+    "compat": "호흡억제가 적으나 서맥(Bradycardia) 및 저혈압 유발 흔함. 활력징후 지속 감시",
+    "badge": "🔴 고위험"
+  },
+  {
+    "name": "Flumazenil",
+    "ko": "플루마제닐 (아넥세이트)",
+    "category": "neuro",
+    "categoryName": "신경/진통",
+    "kpicClass": "신경계감각기관용약 > 벤조디아제핀 길항제",
+    "class": "GABA/BZD 수용체 특이적 길항제",
+    "highRisk": false,
+    "desc": "벤조디아제핀계 약물의 중추진정작용 역전 및 과량 투여 해독",
+    "diluent": "0.2mg을 15초간 IV 주입 후 필요시 60초 간격으로 0.1mg씩 추가",
+    "compat": "BZD 만성 복용자에게 급속 투여 시 급성 금단증상 및 발작(Seizure) 유발 주의",
+    "badge": "⚠️ 주의"
+  },
+  {
+    "name": "Phenytoin",
+    "ko": "페니토인 (딜란틴)",
+    "category": "neuro",
+    "categoryName": "신경/진통",
+    "kpicClass": "신경계감각기관용약 > 항전간제(항경련제)",
+    "class": "나트륨 채널 차단 항경련제",
+    "highRisk": true,
+    "desc": "강직간대발작(대발작), 부분발작, 신경외과 수술 전후 발작 예방 및 간질지속상태",
+    "diluent": "반드시 NS에만 희석 (포도당액 희석 시 즉시 결정 침전 형성). 주입 속도 50mg/min 이하 엄수",
+    "compat": "급속 주입 시 치명적 부정맥, 저혈압, 자반장갑증후군(Purple glove syndrome). TDM 필수 (유효농도 10~20mcg/mL)",
+    "badge": "🔴 고위험",
+    "pregnancy": "DUR 임부금기 2등급: 태아히단토인증후군 (구순구개열, 심장기형, 지능저하)",
+    "pregGrade": 2
+  },
+  {
+    "name": "Levetiracetam",
+    "ko": "레베티라세탐 (케프라)",
+    "category": "neuro",
+    "categoryName": "신경/진통",
+    "kpicClass": "신경계감각기관용약 > 항전간제",
+    "class": "SV2A 결합 항경련제",
+    "highRisk": false,
+    "desc": "간질 환자의 부분발작, 근간대성 발작, 일차성 전신강직간대발작의 2차 병용요법 및 단독요법",
+    "diluent": "NS 100mL 희석 후 15분간 정맥 점적 또는 경구",
+    "compat": "약물 상호작용이 적고 안전역이 넓으나 신기능에 따라 용량 조절. 졸림, 피로, 초조감",
+    "badge": "⚠️ 주의"
+  },
+  {
+    "name": "Sodium Valproate",
+    "ko": "발프로산나트륨 (데파코트 / 데파킨)",
+    "category": "neuro",
+    "categoryName": "신경/진통",
+    "kpicClass": "신경계감각기관용약 > 항전간제 / 기분안정제",
+    "class": "광범위 항경련제 / GABA 증강제",
+    "highRisk": true,
+    "desc": "실신발작, 근간대발작, 강직간대발작, 양극성 장애의 조증 치료, 편두통 예방",
+    "diluent": "경구제 / 주사제(NS 희석)",
+    "compat": "간독성, 췌장염, 고암모니아혈증 모니터링",
+    "badge": "🔴 임부금기 2등급",
+    "pregnancy": "DUR 임부금기 2등급: 신경관 결손(이분척추증, Spina bifida), 지능저하, 자폐 스펙트럼 위험 유발 (가임기 여성 투여 극도 주의)",
+    "pregGrade": 2
+  },
+  {
+    "name": "Gabapentin",
+    "ko": "가바펜틴 (뉴론틴)",
+    "category": "neuro",
+    "categoryName": "신경/진통",
+    "kpicClass": "신경계감각기관용약 > 신경통 치료제 / 항전간제",
+    "class": "전압개폐 칼슘채널 알파-2-델타 리간드",
+    "highRisk": false,
+    "desc": "대상포진 후 신경통(PHN), 당뇨병성 신경병증, 간질 보조요법",
+    "diluent": "경구 투여 (식사와 관계없이 복용)",
+    "compat": "졸림, 어지럼증, 말초부종. 신기능(CrCl)에 따른 정밀 감량 필수",
+    "badge": "⚠️ 주의"
+  },
+  {
+    "name": "Acetaminophen",
+    "ko": "아세트아미노펜 (타이레놀 / 데노간 / 파라세타몰)",
+    "category": "neuro",
+    "categoryName": "신경/진통",
+    "kpicClass": "중추신경계용약 > 해열·진통·소염제",
+    "class": "비마약성 해열진통제",
+    "highRisk": false,
+    "lasa": "프로파세타몰(데노간 1g = 아세트아미노펜 0.5g 환산) 용량 확인",
+    "desc": "두통, 치통, 관절통 등 경증~중등도 통증 완화 및 해열",
+    "diluent": "경구제 / IV 페르팔간 100mL 15분간 정주",
+    "compat": "1일 최대 권장량 4,000mg 초과 금기(간독성 유발). 과량 투여 시 해독제 아세틸시스테인(NAC) 투여",
+    "badge": "안전"
+  },
+  {
+    "name": "Ketorolac",
+    "ko": "케토롤락 (타라신 / 토라돌)",
+    "category": "neuro",
+    "categoryName": "신경/진통",
+    "kpicClass": "해열·진통·소염제 > 비스테로이드성 소염진통제(NSAIDs)",
+    "class": "강력한 주사용 NSAID",
+    "highRisk": true,
+    "desc": "수술 후 통증 등 중등도~중증 급성 통증의 단기 요법",
+    "diluent": "IM 또는 IV(최소 15초 이상 천천히 주입)",
+    "compat": "위장관 궤양/출혈 및 급성 신부전 위험으로 5일 초과 연속 투여 절대 금기. 신장애 및 고령자 감량",
+    "badge": "🔴 고위험",
+    "pregnancy": "DUR 임부금기 2등급 (임신 20주 이후 양수과소증 및 태아 동맥관 조기폐쇄)",
+    "pregGrade": 2
+  },
+  {
+    "name": "Ibuprofen",
+    "ko": "이부프로펜 (부루펜 / 애드빌)",
+    "category": "neuro",
+    "categoryName": "신경/진통",
+    "kpicClass": "해열·진통·소염제 > 프로피온산계 NSAIDs",
+    "class": "비선택적 COX 억제 소염진통제",
+    "highRisk": false,
+    "desc": "관절염, 근육통, 치통, 두통 완화 및 급성 발열 해열",
+    "diluent": "경구 투여 (위장장애 예방 위해 식후 즉시 복용)",
+    "compat": "위장관 출혈 위험, 심혈관 위험, 신장애 주의",
+    "badge": "⚠️ 임부금기 2등급",
+    "pregnancy": "DUR 임부금기 2등급: 임신 20주 이후 양수과소증, 임신 3기 태아 동맥관 조기폐쇄 위험",
+    "pregGrade": 2
+  },
+  {
+    "name": "Celecoxib",
+    "ko": "세레콕시브 (세레브렉스)",
+    "category": "neuro",
+    "categoryName": "신경/진통",
+    "kpicClass": "해열·진통·소염제 > 선택적 COX-2 억제제",
+    "class": "COX-2 선택적 소염진통제",
+    "highRisk": false,
+    "desc": "골관절염, 류마티스 관절염, 강직성 척추염, 급성 통증 완화 (위장관 부작용 감소)",
+    "diluent": "경구 투여 (식사와 무관)",
+    "compat": "설폰아미드(Sulfa) 알레르기 환자 금기. 심혈관 혈전 질환 위험 모니터링",
+    "badge": "⚠️ 임부금기 2등급",
+    "pregnancy": "DUR 임부금기 2등급: 임신 후기 동맥관 조기폐쇄 유발",
+    "pregGrade": 2
+  },
+  {
+    "name": "Sugammadex",
+    "ko": "수가마덱스 (브리디온)",
+    "category": "neuro",
+    "categoryName": "신경/진통",
+    "kpicClass": "근이완제 > 신경근차단 역전제",
+    "class": "선택적 이완 결합제(SRBA)",
+    "highRisk": false,
+    "desc": "로쿠로늄(Rocuronium) 및 베쿠로늄(Vecuronium)에 의해 유도된 신경근 차단의 신속한 역전",
+    "diluent": "체중당 2~16mg을 10초 이내에 단회 IV 볼루스 주사",
+    "compat": "투여 후 경구 피임약 효과 감소(7일간 추가 비호르몬 피임 권고). 서맥 모니터링",
+    "badge": "⚠️ 주의"
+  },
+  {
+    "name": "Ampicillin/Sulbactam",
+    "ko": "암피실린/설박탐 (유나신)",
+    "category": "anti",
+    "categoryName": "항생물질",
+    "kpicClass": "항병원생물성의약품 > 항생물질제제 > 페니실린계",
+    "class": "Beta-lactamase 저해제 복합 아미노페니실린",
+    "highRisk": false,
+    "desc": "폐렴, 복강내 감염, 부인과 감염, 피부연조직 감염",
+    "diluent": "NS 50~100mL 희석 후 30분간 점적 (조제 후 1시간 이내 주입)",
+    "compat": "투여 전 페니실린 피부반응시험(AST) 필수. 포도당액에서 신속히 분해되므로 NS 사용 권장",
+    "badge": "AST 필수"
+  },
+  {
+    "name": "Piperacillin/Tazobactam",
+    "ko": "피페라실린/타조바탐 (타조신)",
+    "category": "anti",
+    "categoryName": "항생물질",
+    "kpicClass": "항병원생물성의약품 > 항생물질제제 > 녹농균용 페니실린",
+    "class": "광범위 항녹농균 페니실린 복합제",
+    "highRisk": false,
+    "desc": "원내폐렴, 중증 복강내 감염, 패혈증, 호중구감소성 발열",
+    "diluent": "NS 또는 D5W 100mL에 희석하여 30분~4시간 Extended Infusion",
+    "compat": "투여 전 AST 피부반응검사 필수. 아미노글리코사이드계 약물과 배합 금기(동일 정맥로 투여 불가)",
+    "badge": "AST 필수"
+  },
+  {
+    "name": "Cefazolin",
+    "ko": "세파졸린",
+    "category": "anti",
+    "categoryName": "항생물질",
+    "kpicClass": "항병원생물성의약품 > 항생물질제제 > 1세대 세팔로스포린",
+    "class": "1세대 Cephalosporin (Gram+ 우수)",
+    "highRisk": false,
+    "desc": "수술 전 예방적 항생제(피부 상재균 커버), 호흡기·비뇨기·피부 감염",
+    "diluent": "NS 또는 D5W 50~100mL 희석하여 30분간 점적",
+    "compat": "투여 전 AST 필수 (절개 60분 이내 투여 완료 원칙)",
+    "badge": "AST 필수"
+  },
+  {
+    "name": "Ceftriaxone",
+    "ko": "세프트리아손 (로세핀)",
+    "category": "anti",
+    "categoryName": "항생물질",
+    "kpicClass": "항병원생물성의약품 > 항생물질제제 > 3세대 세팔로스포린",
+    "class": "3세대 Cephalosporin (긴 반감기, 1일 1회 투여 가능)",
+    "highRisk": false,
+    "desc": "수막염, 폐렴, 요로감염, 임균 감염, 패혈증",
+    "diluent": "NS, D5W 100mL에 희석하여 30분 이상 투여",
+    "compat": "칼슘 함유 용액(하트만액, 플라즈마라이트 등)과 절대 혼합 및 동시 투여 금기 (치명적 칼슘-세프트리아손 불용성 침전물 형성, 특히 신생아 금기). AST 필수",
+    "badge": "AST 필수·칼슘금기"
+  },
+  {
+    "name": "Cefepime",
+    "ko": "세페핌 (맥스핌)",
+    "category": "anti",
+    "categoryName": "항생물질",
+    "kpicClass": "항병원생물성의약품 > 항생물질제제 > 4세대 세팔로스포린",
+    "class": "4세대 Cephalosporin (G+ 및 녹농균 광범위 커버)",
+    "highRisk": false,
+    "desc": "호중구감소성 발열, 원내감염 폐렴, 중증 복강내 및 요로 감염",
+    "diluent": "NS 100mL 희석 30분 이상 투여",
+    "compat": "신기능 저하 환자 감량 불이행 시 신경독성(뇌증, 혼수, 발작) 발생 위험. AST 필수",
+    "badge": "AST 필수"
+  },
+  {
+    "name": "Meropenem",
+    "ko": "메로페넴 (메로펜)",
+    "category": "anti",
+    "categoryName": "항생물질",
+    "kpicClass": "항병원생물성의약품 > 항생물질제제 > 카바페넴계",
+    "class": "Carbapenem계 초광범위 항생제",
+    "highRisk": false,
+    "desc": "다제내성균 감염(ESBL 생성균), 중증 패혈증, 원내 폐렴, 복강내 감염",
+    "diluent": "NS 100mL 희석 30분~3시간 점적",
+    "compat": "발프로산(Depakote)과 병용 시 발프로산 혈중 농도를 급격히 감소시켜 발작 유발(병용 금기). AST 권장",
+    "badge": "⚠️ 병용금기주의"
+  },
+  {
+    "name": "Vancomycin",
+    "ko": "반코마이신",
+    "category": "anti",
+    "categoryName": "항생물질",
+    "kpicClass": "항병원생물성의약품 > 항생물질제제 > 글리코펩타이드계",
+    "class": "Glycopeptide계 / 항MRSA",
+    "highRisk": true,
+    "desc": "MRSA(메티실린 내성 황색포도상구균) 중증 감염, 카테터 관련 혈류감염, 심내막염",
+    "diluent": "1g 기준 최소 NS 200mL 이상 희석하여 60분 이상 천천히 주입 (500mg당 최소 30분)",
+    "compat": "급속 투여 시 히스타민 분비로 인한 레드맨 증후군(Red Man Syndrome - 홍조, 저혈압, 발진). 신독성 및 이독성 위험으로 TDM(Trough 농도 15~20 mcg/mL) 추적 필수",
+    "badge": "🔴 고위험·TDM"
+  },
+  {
+    "name": "Teicoplanin",
+    "ko": "테이코플라닌 (타르고시드)",
+    "category": "anti",
+    "categoryName": "항생물질",
+    "kpicClass": "항병원생물성의약품 > 항생물질제제 > 글리코펩타이드계",
+    "class": "Glycopeptide계 항생제",
+    "highRisk": false,
+    "desc": "MRSA 감염증, 골관절 감염, 심내막염, 패혈증 (반코마이신 대비 신독성 및 투여 부작용 적음)",
+    "diluent": "주사용수 용해 후 NS 100mL 희석 정맥 점적 또는 서서히 IV Push / IM 가능",
+    "compat": "초기 부하용량(Loading dose) 3회 투여 후 유지용량 이행. 신기능 모니터링"
+  },
+  {
+    "name": "Ciprofloxacin",
+    "ko": "시프로플록사신 (씨프로)",
+    "category": "anti",
+    "categoryName": "항생물질",
+    "kpicClass": "항병원생물성의약품 > 합성항균제 > 뉴퀴놀론계",
+    "class": "Fluoroquinolone계 항균제",
+    "highRisk": false,
+    "desc": "비뇨기계 감염, 세균성 장염, 담도 감염, 녹농균 감염",
+    "diluent": "200mg/400mg 플라스틱백 제제 그대로 60분 이상 차광 점적 (경구제 복용 가능)",
+    "compat": "알루미늄/마그네슘 제산제 및 철분제와 동시 복용 시 킬레이트 형성으로 흡수 저하. 건염 및 건파열(아킬레스건) 위험",
+    "badge": "⚠️ 임부금기 2등급",
+    "pregnancy": "DUR 임부금기 2등급: 성장기 태아 및 소아의 관절 연골 손상 위험",
+    "pregGrade": 2
+  },
+  {
+    "name": "Levofloxacin",
+    "ko": "레보플록사신 (크라비트)",
+    "category": "anti",
+    "categoryName": "항생물질",
+    "kpicClass": "항병원생물성의약품 > 합성항균제 > 뉴퀴놀론계",
+    "class": "Respiratory Fluoroquinolone",
+    "highRisk": false,
+    "desc": "지역사회획득 폐렴, 급성 부비동염, 만성 기관지염 급성 악화, 복합 요로감염",
+    "diluent": "500mg(100mL) 60분 이상, 750mg(150mL) 90분 이상 점적",
+    "compat": "QT 간격 연장 주의(부정맥 위험). 중증 근무력증 환자 악화",
+    "badge": "⚠️ 임부금기 2등급",
+    "pregnancy": "DUR 임부금기 2등급: 태아 관절 연골 발육 부전 위험",
+    "pregGrade": 2
+  },
+  {
+    "name": "Amikacin",
+    "ko": "아미카신",
+    "category": "anti",
+    "categoryName": "항생물질",
+    "kpicClass": "항병원생물성의약품 > 항생물질제제 > 아미노글리코사이드계",
+    "class": "Aminoglycoside계 항생제 (Gram- 음성균 강력 억제)",
+    "highRisk": true,
+    "desc": "녹농균, 변형균 등 그람음성 간균에 의한 중증 감염증, 원내 폐렴, 패혈증",
+    "diluent": "NS 또는 D5W 100~200mL에 희석하여 30~60분간 점적",
+    "compat": "신독성(Nephrotoxicity) 및 제8뇌신경 이독성(Ototoxicity - 청력 소실). TDM 추적 필수",
+    "badge": "🔴 고위험·TDM",
+    "pregnancy": "DUR 임부금기 2등급: 태아 내이 신경 손상으로 선천성 영구 청력 소실 유발",
+    "pregGrade": 2
+  },
+  {
+    "name": "Metronidazole",
+    "ko": "메트로니다졸 (후라질)",
+    "category": "anti",
+    "categoryName": "항생물질",
+    "kpicClass": "항병원생물성의약품 > 기타 항병원미생물제",
+    "class": "Nitroimidazole계 / 항원충 및 항혐기성균제",
+    "highRisk": false,
+    "desc": "혐기성균 감염(복강내, 골반강, 뇌농양), 트리코모나스 질염, 위막성 대장염(C. difficile)",
+    "diluent": "500mg/100mL 바이알을 차광 상태로 1시간 동안 점적 주입 (냉장 보관 금지 - 침전)",
+    "compat": "복용 기간 및 중단 후 48시간 내 음주 절대 금지 (디설피람 유사 반응: 홍조, 심한 구토, 두통)",
+    "badge": "⚠️ 금주필수"
+  },
+  {
+    "name": "Fluconazole",
+    "ko": "플루코나졸 (디푸루칸)",
+    "category": "anti",
+    "categoryName": "항생물질",
+    "kpicClass": "항병원생물성의약품 > 항진균제 > 트리아졸계",
+    "class": "Triazole계 항진균제",
+    "highRisk": false,
+    "desc": "칸디다증(구강, 식도, 전신), 효모균 수막염, 면역저하 환자의 진균 감염 예방",
+    "diluent": "주사제(200mg/100mL) 분당 200mg(100mL) 이하 속도로 점적 / 경구",
+    "compat": "간수치(AST/ALT) 모니터링, CYP 대사 억제로 와파린, 페니토인 등 병용약 농도 상승",
+    "badge": "⚠️ 임부금기 2등급",
+    "pregnancy": "DUR 임부금기 2등급: 고용량 장기 투여 시 두개안면 및 심장 기형 위험",
+    "pregGrade": 2
+  },
+  {
+    "name": "Acyclovir",
+    "ko": "아시클로버 (조비락스)",
+    "category": "anti",
+    "categoryName": "항생물질",
+    "kpicClass": "항병원생물성의약품 > 항바이러스제",
+    "class": "DNA 중합효소 억제 항바이러스제",
+    "highRisk": false,
+    "desc": "단순포진 바이러스 감염증(HSV 수막염, 뇌염), 대상포진(VZV) 치료",
+    "diluent": "NS 100mL에 희석하여 최소 1시간 이상 천천히 점적 (신세뇨관 내 결정 형성 방지)",
+    "compat": "급속 주입 시 급성 신부전 유발. 충분한 수액 공급(Hydration) 필수",
+    "badge": "⚠️ 수분공급필수"
+  },
+  {
+    "name": "Pantoprazole",
+    "ko": "판토프라졸 (판토록)",
+    "category": "gi_endo",
+    "categoryName": "소화기/내분비",
+    "kpicClass": "소화기관용약 > 소화성궤양용제 > 프로톤펌프억제제(PPI)",
+    "class": "PPI 위산분비억제제",
+    "highRisk": false,
+    "desc": "위궤양, 십이지장궤양, 중증 역류성 식도염, 상부 위장관 출혈의 급성 지혈 및 예방",
+    "diluent": "주사용 40mg을 NS 100mL에 희석하여 15분간 점적 또는 2~3분간 서서히 IV",
+    "compat": "산성 용액과 배합 시 변색 및 침전. 경구제는 씹거나 부수지 않고 아침 식전 복용"
+  },
+  {
+    "name": "Esomeprazole",
+    "ko": "에소메프라졸 (넥시움)",
+    "category": "gi_endo",
+    "categoryName": "소화기/내분비",
+    "kpicClass": "소화기관용약 > 소화성궤양용제 > 프로톤펌프억제제(PPI)",
+    "class": "S-이성질체 PPI 제제",
+    "highRisk": false,
+    "desc": "위식도 역류질환(GERD), NSAIDs 투여로 인한 위궤양 예방, 내시경 지혈 후 재출혈 예방",
+    "diluent": "급성 출혈 시 80mg 볼루스 투여 후 8mg/hr로 72시간 연속 정맥 주입",
+    "compat": "클로피도그렐 병용 시 항혈소판 작용 약간 감소 가능하나 필요시 안전하게 조절"
+  },
+  {
+    "name": "Tegoprazan",
+    "ko": "테고프라잔 (케이캡)",
+    "category": "gi_endo",
+    "categoryName": "소화기/내분비",
+    "kpicClass": "소화기관용약 > 소화성궤양용제 > P-CAB",
+    "class": "칼륨경쟁적 위산분비차단제 (P-CAB)",
+    "highRisk": false,
+    "desc": "미란성 및 비미란성 위식도역류질환, 위궤양, 헬리코박터 파일로리 제균 보조",
+    "diluent": "경구 투여 (식전·식후 관계없이 복용 가능 - 빠른 발현 속도)",
+    "compat": "기존 PPI와 달리 활성화 과정이 필요 없어 복용 즉시 위산 억제 발현"
+  },
+  {
+    "name": "Famotidine",
+    "ko": "파모티딘 (가스터)",
+    "category": "gi_endo",
+    "categoryName": "소화기/내분비",
+    "kpicClass": "소화기관용약 > 소화성궤양용제 > H2 수용체 길항제",
+    "class": "H2 Receptor Blocker",
+    "highRisk": false,
+    "desc": "위·십이지장궤양, 역류성 식도염, 상부소화관 출혈, 마취 전 투약",
+    "diluent": "20mg을 NS 20mL에 희석하여 최소 2분 이상 천천히 IV 또는 점적 주입",
+    "compat": "급속 정맥 투여 시 일시적 혈압 강하 및 부정맥 유발 주의. 신기능 저하 시 감량"
+  },
+  {
+    "name": "Metoclopramide",
+    "ko": "메토클로프라미드 (맥페란)",
+    "category": "gi_endo",
+    "categoryName": "소화기/내분비",
+    "kpicClass": "소화기관용약 > 진토제 / 위장운동조절제",
+    "class": "도파민 D2 길항제 / 위장관 운동 촉진제",
+    "highRisk": false,
+    "desc": "오심, 구토 증상 완화, 위장관 운동 저하 개선, 위내시경 검사 보조",
+    "diluent": "IM 또는 최소 3분 이상 천천히 정주 (급속 투여 시 심한 불안 및 초조감 유발)",
+    "compat": "추체외로 증상(EPS - 안면경련, 안구운동발작, 사경), 졸림 주의. 소아 및 고령자 주의"
+  },
+  {
+    "name": "Ondansetron",
+    "ko": "온단세트론 (조프란)",
+    "category": "gi_endo",
+    "categoryName": "소화기/내분비",
+    "kpicClass": "소화기관용약 > 진토제 (5-HT3 길항제)",
+    "class": "세로토닌 5-HT3 수용체 차단제",
+    "highRisk": false,
+    "desc": "항암화학요법 및 방사선 치료로 인한 오심·구토 예방, 수술 후 구역·구토 예방 및 치료",
+    "diluent": "NS 50mL 희석 15분간 점적 또는 4~8mg 2~5분간 서서히 IV",
+    "compat": "QT 간격 연장 위험. 두통, 변비 발생 흔함",
+    "badge": "⚠️ 임부주의",
+    "pregnancy": "임신 초기 구역·구토에 사용 시 구개열 등 잠재적 위험 논란으로 1차 약제 권장 안 됨",
+    "pregGrade": 2
+  },
+  {
+    "name": "Lactulose",
+    "ko": "락툴로오스 (듀파락 시럽)",
+    "category": "gi_endo",
+    "categoryName": "소화기/내분비",
+    "kpicClass": "소화기관용약 > 하제·완장제 / 간질환용제",
+    "class": "삼투성 완하제 / 혈중 암모니아 강하제",
+    "highRisk": false,
+    "desc": "만성 변비, 간성혼수(Hepatic Encephalopathy)의 예방 및 치료(혈중 암모니아 배출)",
+    "diluent": "경구 투여 또는 관장(Enema - 따뜻한 물에 3:7 비율 희석하여 장내 보유)",
+    "compat": "배변 횟수(1일 2~3회 무른 변) 확인하여 용량 조절. 과량 시 탈수 및 전해질 불균형 주의"
+  },
+  {
+    "name": "Magnesium Hydroxide",
+    "ko": "수산화마그네슘 (마그밀)",
+    "category": "gi_endo",
+    "categoryName": "소화기/내분비",
+    "kpicClass": "소화기관용약 > 제산제 / 완하제",
+    "class": "마그네슘염 삼투성 제제",
+    "highRisk": false,
+    "desc": "위·십이지장궤양 제산 작용, 변비 완화",
+    "diluent": "경구 투여 (충분한 양의 물과 함께 복용)",
+    "compat": "중증 신장애 환자 투여 금기 (고마그네슘혈증 유발 - 저혈압, 서맥, 호흡억제). 테트라사이클린 흡수 억제"
+  },
+  {
+    "name": "Regular Insulin",
+    "ko": "휴물린 R (레귤러 인슐린 / 속효성 RI)",
+    "category": "gi_endo",
+    "categoryName": "소화기/내분비",
+    "kpicClass": "호르몬제 > 당뇨병용제 > 인슐린 제제",
+    "class": "속효성 휴먼 인슐린 (정맥 주사 가능 유일 인슐린)",
+    "highRisk": true,
+    "lasa": "기타 인슐린 제제(NPH, Lantus 등)와 바이알 및 단위 혼동 절대 금기",
+    "desc": "당뇨병성 케톤산증(DKA), 고삼투압성 고혈당 상태(HHS), 급성 고칼륨혈증 치료, 식후 혈당 조절",
+    "diluent": "IV 투여 시 NS 100mL에 100단위 혼합(1U/mL) 인퓨전 펌프 점적 (플라스틱 튜브 흡착 감안)",
+    "compat": "반드시 인슐린 전용 시린지(U-100) 사용 및 2인 독립 이중확인(Double-check). 저혈당(BST < 70mg/dL) 즉시 50% 포도당 투여",
+    "badge": "🔴 치명적 고위험"
+  },
+  {
+    "name": "Insulin Glargine",
+    "ko": "인슐린 글라진 (란투스 / 투제오)",
+    "category": "gi_endo",
+    "categoryName": "소화기/내분비",
+    "kpicClass": "호르몬제 > 당뇨병용제 > 지속형 인슐린 아날로그",
+    "class": "24시간 피크 없는 지속형 기저 인슐린",
+    "highRisk": true,
+    "desc": "성인 및 소아 당뇨병 환자의 기저 혈당 조절",
+    "diluent": "피하주사(SC) 전용 (절대 IV 투여 금지). 매일 일정한 시간에 1회 투여",
+    "compat": "절대 다른 인슐린이나 수액과 혼합 금지(산성 pH 4.0으로 침전 발생). 주사 부위 순환(Lipodystrophy 예방)",
+    "badge": "🔴 고위험"
+  },
+  {
+    "name": "Metformin",
+    "ko": "메트포르민 (글루코파지)",
+    "category": "gi_endo",
+    "categoryName": "소화기/내분비",
+    "kpicClass": "대사성의약품 > 당뇨병용제 > Biguanide계",
+    "class": "간 포도당 생성 억제 및 인슐린 감수성 개선제",
+    "highRisk": false,
+    "desc": "제2형 당뇨병의 1차 표준 치료제",
+    "diluent": "경구 투여 (위장장애 완화를 위해 식사 중 또는 식후 즉시 복용)",
+    "compat": "조영제 사용 CT/검사 시 유산산증(Lactic Acidosis) 예방을 위해 검사 전 48시간 전후 복용 일시 중단. 신부전(eGFR < 30) 금기",
+    "badge": "⚠️ 조영제주의"
+  },
+  {
+    "name": "Empagliflozin",
+    "ko": "엠파글리플로진 (자디앙)",
+    "category": "gi_endo",
+    "categoryName": "소화기/내분비",
+    "kpicClass": "대사성의약품 > 당뇨병용제 > SGLT-2 저해제",
+    "class": "신세뇨관 포도당 재흡수 억제제",
+    "highRisk": false,
+    "desc": "제2형 당뇨병, 만성 심부전(HFrEF/HFpEF), 만성 신장병(CKD) 심혈관 위험 감소",
+    "diluent": "경구 투여 (1일 1회 아침)",
+    "compat": "요로감염 및 생식기 진균 감염 위험, 정상혈당 케톤산증(Euglycemic DKA) 주의. 수술 3일 전 중단",
+    "badge": "⚠️ 주의"
+  },
+  {
+    "name": "50% Dextrose",
+    "ko": "50% 포도당 주사액 (D50W)",
+    "category": "gi_endo",
+    "categoryName": "소화기/내분비",
+    "kpicClass": "대사성의약품 > 당류제제 / 응급해독제",
+    "class": "고농도 탄수화물 영양제 / 저혈당 응급치료제",
+    "highRisk": true,
+    "desc": "인슐린 쇼크 등 급성 저혈당증(BST < 70mg/dL)의 응급 처치",
+    "diluent": "50mL(1앰플)을 굵은 정맥을 통해 천천히 IV Push 후 생리식염수 플러시",
+    "compat": "고장액으로 혈관외유출(Extravasation) 시 심한 조직 괴사 및 혈전정맥염 위험. 투여 15분 후 혈당 재측정",
+    "badge": "🔴 고위험"
+  },
+  {
+    "name": "Levothyroxine",
+    "ko": "레보티록신 (씬지로이드)",
+    "category": "gi_endo",
+    "categoryName": "소화기/내분비",
+    "kpicClass": "호르몬제 > 갑상선호르몬제",
+    "class": "합성 갑상선 호르몬(T4)",
+    "highRisk": false,
+    "desc": "갑상선기능저하증, 점액부종, 갑상선종, 갑상선암 수술 후 보충 요법",
+    "diluent": "경구 투여 (아침 기상 직후 공복에 물 1컵과 함께 복용, 30~60분간 다른 음식·약물 금지)",
+    "compat": "칼슘제, 철분제, 제산제와 최소 4시간 간격 복용 (흡수 급감)"
+  },
+  {
+    "name": "Dexamethasone",
+    "ko": "덱사메타손",
+    "category": "gi_endo",
+    "categoryName": "소화기/내분비",
+    "kpicClass": "호르몬제 > 부신호르몬제",
+    "class": "강력한 합성 글루코코르티코이드 (광물코르티코이드 작용 없음)",
+    "highRisk": false,
+    "desc": "뇌부종 완화, 중증 알레르기 및 아나필락시스, 항암제 구토 예방, 호흡부전 스테로이드 요법",
+    "diluent": "IV, IM, 경구 (IV 시 NS에 희석하여 서서히 주입)",
+    "compat": "고혈당, 감염 감수성 증가, 쿠싱 증후군, 소화성 궤양 주의. 급격한 투약 중단 금지(테이퍼링 필수)"
+  },
+  {
+    "name": "Methylprednisolone",
+    "ko": "메틸프레드니솔론 (솔루메드롤)",
+    "category": "gi_endo",
+    "categoryName": "소화기/내분비",
+    "kpicClass": "호르몬제 > 부신호르몬제",
+    "class": "중등도 지속시간 합성 부신피질호르몬",
+    "highRisk": false,
+    "desc": "급성 천식 발작, 척수 손상 급성기, 자가면역질환의 급성 악화, 패혈성 쇼크 보조",
+    "diluent": "첨부된 용제로 용해 후 NS 50~100mL 희석 점적 (고용량 펄스 요법 시 최소 30분 이상 투여)",
+    "compat": "급속 정맥 투여 시 심장부정맥 및 순환허탈 위험. 혈당 및 감염 징후 추적"
+  },
+  {
+    "name": "Furosemide",
+    "ko": "푸로세미드 (라식스)",
+    "category": "resp_meta",
+    "categoryName": "이뇨/전해질/응급",
+    "kpicClass": "비뇨생식기관용약 > 이뇨제 > 루프 이뇨제",
+    "class": "Loop Diuretic (Henle 고리 Na-K-2Cl 차단)",
+    "highRisk": false,
+    "desc": "급·만성 신부전, 울혈성 심부전, 간경변 및 신질환성 부종, 급성 폐수종, 고혈압",
+    "diluent": "원액을 1~2분에 걸쳐 서서히 IV Push (대량 투여 시 분당 4mg 이하 점적)",
+    "compat": "급속 투여 시 이독성(Ototoxicity, 일시적/영구적 청력장애). 저칼륨혈증, 저혈압, 탈수 모니터링",
+    "badge": "⚠️ 주의"
+  },
+  {
+    "name": "Spironolactone",
+    "ko": "스피로놀락톤 (알닥톤)",
+    "category": "resp_meta",
+    "categoryName": "이뇨/전해질/응급",
+    "kpicClass": "비뇨생식기관용약 > 이뇨제 > 칼륨보존성 이뇨제",
+    "class": "알도스테론 길항제",
+    "highRisk": false,
+    "desc": "원발성 알도스테론증, 심부전, 간경변성 복수 및 부종, 본태성 고혈압",
+    "diluent": "경구 투여 (식후 복용 권장)",
+    "compat": "고칼륨혈증(Hyperkalemia) 위험(혈청 K > 5.5 mEq/L 시 중단 검토). 남성 유방화",
+    "badge": "⚠️ 임부금기 2등급",
+    "pregnancy": "DUR 임부금기 2등급: 항안드로겐 작용으로 남성 태아 여성형 외음부 기형 유발 가능",
+    "pregGrade": 2
+  },
+  {
+    "name": "20% Mannitol",
+    "ko": "20% 만니톨 주사액",
+    "category": "resp_meta",
+    "categoryName": "이뇨/전해질/응급",
+    "kpicClass": "비뇨생식기관용약 > 이뇨제 > 삼투성 이뇨제",
+    "class": "Osmotic Diuretic",
+    "highRisk": true,
+    "desc": "뇌부종 및 두개내압(IICP) 강하, 안압 강하, 급성 신부전의 예방",
+    "diluent": "정맥 전용 (통상 0.5~1g/kg을 30~60분에 걸쳐 신속 점적)",
+    "compat": "저온 보관 시 결정이 석출되므로 가온 용해 후 식혀서 반드시 필터가 있는 수액세트로 투여. 울혈성 심부전 환자 폐부종 악화 주의",
+    "badge": "🔴 고위험·필터사용"
+  },
+  {
+    "name": "Aminophylline",
+    "ko": "아미노필린",
+    "category": "resp_meta",
+    "categoryName": "이뇨/전해질/응급",
+    "kpicClass": "호흡기관용약 > 진해거담제 > 크산틴계",
+    "class": "Phosphodiesterase 억제 기관지확장제",
+    "highRisk": true,
+    "desc": "기관지 천식, 만성 폐쇄성 폐질환(COPD)의 기도폐쇄성 장애, 심인성 천식",
+    "diluent": "NS 또는 D5W 100~200mL에 혼합하여 30분 이상 서서히 점적",
+    "compat": "치료 지수 좁음(10~20mcg/mL). 과량 시 빈맥, 치명적 심실부정맥, 발작(Seizure) 유발. TDM 권장",
+    "badge": "🔴 고위험"
+  },
+  {
+    "name": "Salbutamol",
+    "ko": "살부타몰 (벤토린 흡입액 / 네뷸)",
+    "category": "resp_meta",
+    "categoryName": "이뇨/전해질/응급",
+    "kpicClass": "호흡기관용약 > 기관지확장제 > Beta-2 효능제",
+    "class": "속효성 베타-2 아드레날린 효능제(SABA)",
+    "highRisk": false,
+    "desc": "중증 급성 천식 발작의 신속 완화, 기관지경련의 치료 및 예방",
+    "diluent": "네뷸라이저(흡입기)를 통해 흡입 (필요시 NS 2mL 추가 희석)",
+    "compat": "빈맥, 진전(Tremor), 두근거림, 일시적 저칼륨혈증 발생 가능"
+  },
+  {
+    "name": "Chlorpheniramine",
+    "ko": "클로르페니라민 (페니라민 주사)",
+    "category": "resp_meta",
+    "categoryName": "이뇨/전해질/응급",
+    "kpicClass": "호흡기관용약 > 항히스타민제",
+    "class": "1세대 H1 수용체 길항제",
+    "highRisk": false,
+    "desc": "두드러기, 알레르기성 비염, 약물 과민반응, 수혈 전 알레르기 예방 투약",
+    "diluent": "SC, IM 또는 NS에 희석하여 천천히 IV",
+    "compat": "심한 졸림, 진정, 구갈, 어지럼증. 고령자 낙상 위험 모니터링"
+  },
+  {
+    "name": "Potassium Chloride",
+    "ko": "염화칼륨 40mEq / 20mL (KCl 고농도 주사액)",
+    "category": "resp_meta",
+    "categoryName": "이뇨/전해질/응급",
+    "kpicClass": "대사성의약품 > 무기질제제 > 전해질 보충제",
+    "class": "고농도 전해질 주사제",
+    "highRisk": true,
+    "lasa": "절대 원액 단독 정맥 주사 금지 (심정지 사형 약물과 동일 기전)",
+    "desc": "저칼륨혈증(Hypokalemia)의 치료 및 전해질 교정",
+    "diluent": "반드시 대용량 수액(1L 또는 500mL)에 충분히 혼합·희석 후 투여. 말초 정맥 시 최대 40mEq/L 이하 농도 권장",
+    "compat": "정맥 주입 속도는 시간당 10~20mEq 이하 엄수. 주입 중 심전도 모니터링 필수. 고칼륨혈증 시 치명적 부정맥(Asystole)",
+    "badge": "🔴 치명적 고위험 (희석필수)"
+  },
+  {
+    "name": "Sodium Bicarbonate",
+    "ko": "탄산수소나트륨 8.4% (비본 20mL)",
+    "category": "resp_meta",
+    "categoryName": "이뇨/전해질/응급",
+    "kpicClass": "대사성의약품 > 혈액대용제 > 알칼리화제",
+    "class": "대사성 산증 교정제",
+    "highRisk": true,
+    "desc": "심폐소생술 시 중증 대사성 산증, 고칼륨혈증, 삼환계 항우울제(TCA) 과량 중독",
+    "diluent": "IV Push 또는 D5W에 희석 점적",
+    "compat": "알칼리성 용액으로 카테콜아민(에피네프린, 도파민) 및 칼슘 주사제와 혼합 시 침전 및 불활성화. 혈관외유출 시 조직 괴사",
+    "badge": "🔴 고위험"
+  },
+  {
+    "name": "Calcium Gluconate",
+    "ko": "10% 글루콘산칼슘 (칼슘글루코네이트 2g/20mL)",
+    "category": "resp_meta",
+    "categoryName": "이뇨/전해질/응급",
+    "kpicClass": "대사성의약품 > 무기질제제 > 칼슘제",
+    "class": "칼슘 보충제 / 심근 세포막 안정제",
+    "highRisk": true,
+    "desc": "급성 저칼슘혈증 경련(Tetany), 중증 고칼륨혈증 및 고마그네슘혈증 시 심장 독성 길항(심근 보호)",
+    "diluent": "D5W 또는 NS 100mL 희석 후 10~20분에 걸쳐 서서히 점적",
+    "compat": "급속 투여 시 서맥 및 심정지 유발. 탄산수소나트륨, 인산염 용액과 배합 금기(침전 형성). 혈관 자극 주의",
+    "badge": "🔴 고위험"
+  },
+  {
+    "name": "Magnesium Sulfate",
+    "ko": "10% / 50% 황산마그네슘",
+    "category": "resp_meta",
+    "categoryName": "이뇨/전해질/응급",
+    "kpicClass": "비뇨생식기관용약 > 자간증 치료제 / 무기질제제",
+    "class": "마그네슘 보충제 / 항경련제",
+    "highRisk": true,
+    "desc": "임신중독증(자간증 및 전자간증) 경련 예방 및 조절, Torsades de pointes(TdP) 심실부정맥 응급치료",
+    "diluent": "D5W 또는 NS에 희석하여 인퓨전 펌프로 정밀 투여",
+    "compat": "슬개건반사(DTR) 소실, 호흡수 저하(<12회/분), 소변량 감소 확인. 마그네슘 중독 시 해독제 10% 글루콘산칼슘 즉시 정주",
+    "badge": "🔴 고위험·해독제대기"
+  },
+  {
+    "name": "3% Sodium Chloride",
+    "ko": "3% 고농도 생리식염수 (Hypertonic Saline)",
+    "category": "resp_meta",
+    "categoryName": "이뇨/전해질/응급",
+    "kpicClass": "대사성의약품 > 혈액대용제 > 전해질액",
+    "class": "고장성 전해질액",
+    "highRisk": true,
+    "desc": "경련, 혼수 등 뇌부종 증상을 동반한 급성 중증 저나트륨혈증(Na < 120mEq/L)",
+    "diluent": "중심정맥관(C-line) 투여 원칙, 인퓨전 펌프로 정밀 조절",
+    "compat": "급속한 나트륨 교정 시 삼투성 뇌탈수초 증후군(ODS - 비가역적 뇌손상, 사지마비) 유발. 24시간 내 혈청 Na 상승 폭 8~10 mEq/L 제한 엄수",
+    "badge": "🔴 치명적 고위험"
+  },
+  {
+    "name": "Acetylcysteine",
+    "ko": "아세틸시스테인 (뮤코미스트)",
+    "category": "resp_meta",
+    "categoryName": "이뇨/전해질/응급",
+    "kpicClass": "호흡기관용약 > 진해거담제 / 간독성 해독제",
+    "class": "점액용해제 / 아세트아미노펜 특이적 해독제",
+    "highRisk": false,
+    "desc": "농후한 객담 배출 곤란(만성 기관지염, 폐렴), 아세트아미노펜(타이레놀) 과량 중독 시 간손상 방지",
+    "diluent": "흡입(네뷸라이저) / 해독 시 프로토콜에 따라 D5W 희석 정맥 점적",
+    "compat": "해독 목적으로 IV 투여 시 아나필락시스 유사 과민반응(발진, 혈관부종, 저혈압) 빈발하므로 주입 속도 및 환자 감시 철저"
+  },
+  {
+    "name": "Isotretinoin",
+    "ko": "이소트레티노인 (로아큐탄 / 이소티논)",
+    "category": "preg",
+    "categoryName": "임부금기",
+    "kpicClass": "피부질환용약 > 여드름 치료제",
+    "class": "비타민 A 유도체 (Retinoid)",
+    "highRisk": true,
+    "lasa": "트레티노인, 아시트레틴과 혼동 주의",
+    "desc": "다른 치료법으로 잘 치료되지 않는 중증의 여드름(결절성, 낭포성)",
+    "diluent": "경구 투여",
+    "compat": "임신 중 단 한 알만 복용해도 100%에 가까운 최기형성 유발. 복용 중단 후에도 최소 1개월간 철저한 피임 필수",
+    "badge": "🔴 임부금기 1등급",
+    "pregnancy": "DUR 임부금기 1등급 (절대금기): 소이증(귀 기형), 구개열, 안면기형, 심장혈관기형, 뇌수종, 지능저하 등 심각한 선천성 기형 유발",
+    "pregGrade": 1
+  },
+  {
+    "name": "Thalidomide",
+    "ko": "탈리도마이드",
+    "category": "preg",
+    "categoryName": "임부금기",
+    "kpicClass": "항악성종양제 > 면역조절 항암제",
+    "class": "면역조절제 / 항혈관신생제",
+    "highRisk": true,
+    "desc": "다발성 골수종 치료",
+    "diluent": "경구 투여",
+    "compat": "철저한 임신예방프로그램(RevAid/TBRMP) 하에만 처방 및 조제 가능",
+    "badge": "🔴 임부금기 1등급",
+    "pregnancy": "DUR 임부금기 1등급 (절대금기): 해표지증(Phocomelia - 사지가 물개처럼 짧아지는 기형), 내장 기형 및 태아 사망 유발",
+    "pregGrade": 1
+  },
+  {
+    "name": "Methotrexate",
+    "ko": "메토트렉세이트 (MTX)",
+    "category": "preg",
+    "categoryName": "임부금기",
+    "kpicClass": "항악성종양제 > 엽산 길항제 / 면역억제제",
+    "class": "항대사물질 엽산 길항제",
+    "highRisk": true,
+    "desc": "류마티스 관절염, 건선, 급성 백혈병, 자궁외임신 약물 종결",
+    "diluent": "경구 / IM / IV",
+    "compat": "골수억제, 간독성, 폐섬유화 모니터링",
+    "badge": "🔴 임부금기 1등급",
+    "pregnancy": "DUR 임부금기 1등급 (절대금기): 엽산 대사 억제로 무뇌증, 뇌탈출증, 두개골 기형, 사지 결손, 자연유산 유발",
+    "pregGrade": 1
+  },
+  {
+    "name": "Finasteride",
+    "ko": "피나스테리드 (프로페시아 / 프로스카)",
+    "category": "preg",
+    "categoryName": "임부금기",
+    "kpicClass": "비뇨생식기관용약 > 5-알파 환원효소 억제제",
+    "class": "5-Alpha Reductase Inhibitor",
+    "highRisk": false,
+    "desc": "남성형 탈모증 치료(1mg), 양성 전립선비대증 치료(5mg)",
+    "diluent": "경구 투여 (성인 남성 전용)",
+    "compat": "가임기 여성은 정제를 만지는 것(경피 흡수)조차 금기(정제가 깨지거나 부서진 경우 피부로 약물 흡수)",
+    "badge": "🔴 임부금기 1등급",
+    "pregnancy": "DUR 임부금기 1등급 (절대금기): 디하이드로테스토스테론(DHT) 생성 차단으로 남아 태아의 외생식기 발달 부전 및 기형 유발",
+    "pregGrade": 1
+  },
+  {
+    "name": "Dutasteride",
+    "ko": "두타스테리드 (아보다트)",
+    "category": "preg",
+    "categoryName": "임부금기",
+    "kpicClass": "비뇨생식기관용약 > 5-알파 환원효소 억제제",
+    "class": "5-Alpha Reductase Dual Inhibitor",
+    "highRisk": false,
+    "desc": "양성 전립선비대증 증상 개선 및 급성 요폐 위험 감소, 성인 남성 안드로겐 탈모",
+    "diluent": "경구 투여 (연질캡슐 그대로 삼킴)",
+    "compat": "여성 및 소아 투여 금기. 캡슐 누출 시 피부 접촉 주의",
+    "badge": "🔴 임부금기 1등급",
+    "pregnancy": "DUR 임부금기 1등급 (절대금기): 남아 태아의 외부 생식기 기형 유발",
+    "pregGrade": 1
+  },
+  {
+    "name": "Misoprostol",
+    "ko": "미소프로스톨 (싸이토텍)",
+    "category": "preg",
+    "categoryName": "임부금기",
+    "kpicClass": "소화기관용약 > 프로스타글란딘 E1 유도체",
+    "class": "소화성궤양용제 / 자궁수축제",
+    "highRisk": true,
+    "desc": "NSAIDs 투여로 인한 위십이지장 궤양 예방 및 치료. 산부인과 통제하 분만 유도 보조",
+    "diluent": "경구제 / 질정",
+    "compat": "임신 중 소화기계 궤양 치료 목적으로 투여 절대 금기",
+    "badge": "🔴 임부금기 1등급",
+    "pregnancy": "DUR 임부금기 1등급 (절대금기): 강력한 자궁 수축으로 유산, 조산, 자궁 파열 및 뫼비우스 증후군(안면마비 기형) 유발",
+    "pregGrade": 1
+  },
+  {
+    "name": "Atorvastatin",
+    "ko": "아토르바스타틴 (리피토)",
+    "category": "preg",
+    "categoryName": "임부금기",
+    "kpicClass": "순환기계질환용약 > 고지혈증치료제 > HMG-CoA 환원효소 저해제",
+    "class": "Statin계 지질저하제",
+    "highRisk": false,
+    "desc": "원발성 고콜레스테롤혈증, 이상지질혈증, 관상동맥심질환 환자의 심혈관 질환 위험 감소",
+    "diluent": "경구 투여 (1일 1회 식사와 무관)",
+    "compat": "근육통, 횡문근융해증(Rhabdomyolysis), 간기능 이상 모니터링",
+    "badge": "🔴 임부금기 1등급",
+    "pregnancy": "DUR 임부금기 1등급 (절대금기): 콜레스테롤은 태아 발달(세포막 및 스테로이드 호르몬 합성)에 필수적이므로 스타틴계 약물은 임부 투여 금기",
+    "pregGrade": 1
+  },
+  {
+    "name": "Doxycycline",
+    "ko": "독시사이클린 (모노신 / 바이브라마이신)",
+    "category": "preg",
+    "categoryName": "임부금기",
+    "kpicClass": "항병원생물성의약품 > 테트라사이클린계",
+    "class": "Tetracycline계 광범위 항생제",
+    "highRisk": false,
+    "desc": "리케차 감염증(쯔쯔가무시증), 클라미디아, 중증 여드름, 마이코플라즈마 폐렴",
+    "diluent": "경구 투여 (식도 궤양 방지를 위해 충분한 양의 물과 복용 후 30분간 눕지 않음)",
+    "compat": "우유, 제산제, 철분제와 2시간 이상 간격 유지. 광과민성 주의",
+    "badge": "⚠️ 임부금기 2등급",
+    "pregnancy": "DUR 임부금기 2등급: 칼슘과 결합하여 태아 및 영유아의 치아 영구 착색(황갈색) 및 법랑질 형성 부전, 골격 성장 지연 유발",
+    "pregGrade": 2
   }
 ];
+
 const medicalTermsDB = [
   // 1. 투약 및 처방 관련 약어 (Medication & Orders)
   {
@@ -2084,6 +3009,7 @@ const DBTab = () => {
     { id: "cardio", label: "순환기계", icon: "ph-heartbeat" },
     { id: "neuro", label: "신경/진정/진통", icon: "ph-brain" },
     { id: "anti", label: "항생물질", icon: "ph-shield-plus" },
+    { id: "gi_endo", label: "소화기/내분비", icon: "ph-drop" },
     { id: "resp_meta", label: "이뇨/전해질/응급", icon: "ph-first-aid" }
   ];
   const filtered = useMemo(() => {
@@ -3061,8 +3987,264 @@ const AstTab = () => {
       </div>
     </div>;
 };
+const HomeTab = ({ setActiveTab }) => {
+  return (
+    <div className="p-3 sm:p-5 space-y-6 animate-fade-in pb-16">
+      {/* 1. Hero Banner */}
+      <div className="relative rounded-3xl overflow-hidden border border-pink-200 shadow-md bg-gradient-to-br from-rose-900 to-slate-900 text-white min-h-[260px] sm:min-h-[280px] flex flex-col justify-end p-6 sm:p-8">
+        <img
+          src="./assets/images/medical_hero_banner_1792567045128.jpg"
+          alt="MediDose Pro 임상 간호 배너"
+          className="absolute inset-0 w-full h-full object-cover opacity-35 mix-blend-luminosity scale-105 transition-transform duration-700 hover:scale-100"
+          onError={(e) => {
+            const target = e.currentTarget;
+            if (!target.dataset.tried) {
+              target.dataset.tried = '1';
+              target.src = '/assets/images/medical_hero_banner_1792567045128.jpg';
+            } else if (target.dataset.tried === '1') {
+              target.dataset.tried = '2';
+              target.src = './public/assets/images/medical_hero_banner_1792567045128.jpg';
+            } else {
+              target.style.display = 'none';
+            }
+          }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-rose-950/90 via-rose-900/40 to-transparent" />
+        
+        <div className="relative z-10 space-y-3">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-rose-500/80 backdrop-blur-md text-white text-xs font-semibold tracking-wide border border-rose-300/40 shadow-sm">
+            <i className="ph-fill ph-shield-check text-rose-200" />
+            <span>스마트 간호 임상 투약 가이드</span>
+          </div>
+          <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white drop-shadow-sm">
+            정확하고 안전한 간호 실무의 시작,<br className="hidden sm:inline" /> MediDose Pro
+          </h2>
+          <p className="text-pink-100/90 text-xs sm:text-sm max-w-xl leading-relaxed">
+            신속한 gtt/cc 투약 속도 계산부터 임상 약물 사전, 식약처 임부금기 정보, AST 피내검사 판독 및 의학 용어까지 한눈에 확인하세요.
+          </p>
+          <div className="pt-2 flex flex-wrap gap-2.5">
+            <button
+              onClick={() => setActiveTab && setActiveTab('calc')}
+              className="px-4 py-2 rounded-xl bg-white text-rose-600 font-bold text-xs sm:text-sm hover:bg-rose-50 transition-all shadow-sm flex items-center gap-1.5 cursor-pointer active:scale-95"
+            >
+              <i className="ph-bold ph-calculator" /> 투약 계산기 시작
+            </button>
+            <button
+              onClick={() => setActiveTab && setActiveTab('db')}
+              className="px-4 py-2 rounded-xl bg-rose-600/80 hover:bg-rose-600 text-white font-bold text-xs sm:text-sm transition-all border border-rose-400/50 backdrop-blur-sm flex items-center gap-1.5 cursor-pointer active:scale-95"
+            >
+              <i className="ph-bold ph-magnifying-glass" /> 약물 사전 검색
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* 2. Quick Feature Grid */}
+      <div>
+        <div className="flex items-center justify-between mb-3 px-1">
+          <h3 className="font-bold text-slate-800 text-base flex items-center gap-2">
+            <i className="ph-fill ph-squares-four text-rose-500" />
+            주요 임상 도구 바로가기
+          </h3>
+          <span className="text-xs text-rose-500 font-medium">원클릭 바로가기</span>
+        </div>
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+          <button
+            onClick={() => setActiveTab && setActiveTab('calc')}
+            className="p-3.5 bg-white rounded-2xl border border-pink-200/80 hover:border-rose-400 shadow-sm hover:shadow-md transition-all text-left flex flex-col gap-2 group cursor-pointer"
+          >
+            <div className="w-10 h-10 rounded-xl bg-pink-50 text-rose-600 flex items-center justify-center group-hover:bg-rose-500 group-hover:text-white transition-colors">
+              <i className="ph-bold ph-calculator text-xl" />
+            </div>
+            <div>
+              <div className="font-bold text-slate-800 text-sm group-hover:text-rose-600 transition-colors">투약 계산기</div>
+              <div className="text-[11px] text-slate-500 mt-0.5">gtt/min, cc/hr, μg/kg/min, 희석</div>
+            </div>
+          </button>
+
+          <button
+            onClick={() => setActiveTab && setActiveTab('db')}
+            className="p-3.5 bg-white rounded-2xl border border-pink-200/80 hover:border-rose-400 shadow-sm hover:shadow-md transition-all text-left flex flex-col gap-2 group cursor-pointer"
+          >
+            <div className="w-10 h-10 rounded-xl bg-pink-50 text-rose-600 flex items-center justify-center group-hover:bg-rose-500 group-hover:text-white transition-colors">
+              <i className="ph-bold ph-pill text-xl" />
+            </div>
+            <div>
+              <div className="font-bold text-slate-800 text-sm group-hover:text-rose-600 transition-colors">임상 약물 사전</div>
+              <div className="text-[11px] text-slate-500 mt-0.5">응급·병동 상용 약물 & 주의사항</div>
+            </div>
+          </button>
+
+          <button
+            onClick={() => setActiveTab && setActiveTab('preg')}
+            className="p-3.5 bg-white rounded-2xl border border-pink-200/80 hover:border-rose-400 shadow-sm hover:shadow-md transition-all text-left flex flex-col gap-2 group cursor-pointer"
+          >
+            <div className="w-10 h-10 rounded-xl bg-pink-50 text-rose-600 flex items-center justify-center group-hover:bg-rose-500 group-hover:text-white transition-colors">
+              <i className="ph-bold ph-baby text-xl" />
+            </div>
+            <div>
+              <div className="font-bold text-slate-800 text-sm group-hover:text-rose-600 transition-colors">DUR 임부금기</div>
+              <div className="text-[11px] text-slate-500 mt-0.5">식약처 1·2등급 임부금기 약물</div>
+            </div>
+          </button>
+
+          <button
+            onClick={() => setActiveTab && setActiveTab('ast')}
+            className="p-3.5 bg-white rounded-2xl border border-pink-200/80 hover:border-rose-400 shadow-sm hover:shadow-md transition-all text-left flex flex-col gap-2 group cursor-pointer"
+          >
+            <div className="w-10 h-10 rounded-xl bg-pink-50 text-rose-600 flex items-center justify-center group-hover:bg-rose-500 group-hover:text-white transition-colors">
+              <i className="ph-bold ph-eyedropper text-xl" />
+            </div>
+            <div>
+              <div className="font-bold text-slate-800 text-sm group-hover:text-rose-600 transition-colors">AST 가이드 & 판독</div>
+              <div className="text-[11px] text-slate-500 mt-0.5">15분 타이머 및 AI 사진 판독</div>
+            </div>
+          </button>
+
+          <button
+            onClick={() => setActiveTab && setActiveTab('terms')}
+            className="p-3.5 bg-white rounded-2xl border border-pink-200/80 hover:border-rose-400 shadow-sm hover:shadow-md transition-all text-left flex flex-col gap-2 group cursor-pointer"
+          >
+            <div className="w-10 h-10 rounded-xl bg-pink-50 text-rose-600 flex items-center justify-center group-hover:bg-rose-500 group-hover:text-white transition-colors">
+              <i className="ph-bold ph-translate text-xl" />
+            </div>
+            <div>
+              <div className="font-bold text-slate-800 text-sm group-hover:text-rose-600 transition-colors">KMLE 의학용어</div>
+              <div className="text-[11px] text-slate-500 mt-0.5">KMLE 연동 임상 의학 약어 사전</div>
+            </div>
+          </button>
+
+          <button
+            onClick={() => setActiveTab && setActiveTab('utils')}
+            className="p-3.5 bg-white rounded-2xl border border-pink-200/80 hover:border-rose-400 shadow-sm hover:shadow-md transition-all text-left flex flex-col gap-2 group cursor-pointer"
+          >
+            <div className="w-10 h-10 rounded-xl bg-pink-50 text-rose-600 flex items-center justify-center group-hover:bg-rose-500 group-hover:text-white transition-colors">
+              <i className="ph-bold ph-check-square text-xl" />
+            </div>
+            <div>
+              <div className="font-bold text-slate-800 text-sm group-hover:text-rose-600 transition-colors">투약 5대 원칙</div>
+              <div className="text-[11px] text-slate-500 mt-0.5">5 Rights 실시간 안전 체크리스트</div>
+            </div>
+          </button>
+        </div>
+      </div>
+
+      {/* 3. Clinical Spotlight Cards with Images */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* Card 1: Clinical Nursing Care */}
+        <div className="bg-white rounded-3xl overflow-hidden border border-pink-200 shadow-sm flex flex-col transition-all hover:shadow-md">
+          <div className="relative h-44 overflow-hidden bg-gradient-to-br from-pink-100 to-rose-200 flex items-center justify-center">
+            <i className="ph-fill ph-heartbeat text-rose-300 text-6xl opacity-40 absolute" />
+            <img
+              src="./assets/images/nurse_clinical_care_1792567045068.jpg"
+              alt="임상 간호 및 환자 안전 케어"
+              className="w-full h-full object-cover transition-transform duration-500 hover:scale-105 relative z-10"
+              onError={(e) => {
+                const target = e.currentTarget;
+                if (!target.dataset.tried) {
+                  target.dataset.tried = '1';
+                  target.src = '/assets/images/nurse_clinical_care_1792567045068.jpg';
+                } else if (target.dataset.tried === '1') {
+                  target.dataset.tried = '2';
+                  target.src = './public/assets/images/nurse_clinical_care_1792567045068.jpg';
+                } else {
+                  target.style.display = 'none';
+                }
+              }}
+            />
+            <div className="absolute top-3 left-3 px-2.5 py-1 rounded-full bg-white/90 backdrop-blur-md text-rose-600 text-[11px] font-bold shadow-sm border border-pink-200 z-20">
+              환자 안전 최우선
+            </div>
+          </div>
+          <div className="p-4 sm:p-5 flex-1 flex flex-col justify-between space-y-3">
+            <div>
+              <h4 className="font-bold text-slate-800 text-base mb-1.5 flex items-center gap-1.5">
+                <i className="ph-fill ph-heartbeat text-rose-500" />
+                정확하고 세심한 임상 간호 실무
+              </h4>
+              <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                투약 준비부터 환자 투여 직전까지 3회 확인(3 Checks)과 세심한 관찰을 통해 투약 오류를 예방하고 환자 안전을 보장합니다.
+              </p>
+            </div>
+            <div className="pt-2 border-t border-pink-100 flex items-center justify-between">
+              <span className="text-xs text-slate-400 font-medium">안전 투약 가이드</span>
+              <button
+                onClick={() => setActiveTab && setActiveTab('ast')}
+                className="text-xs font-bold text-rose-600 hover:text-rose-700 flex items-center gap-1 cursor-pointer"
+              >
+                AST 가이드 확인 <i className="ph-bold ph-caret-right" />
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Card 2: 5 Rights Medication Safety */}
+        <div className="bg-white rounded-3xl overflow-hidden border border-pink-200 shadow-sm flex flex-col transition-all hover:shadow-md">
+          <div className="relative h-44 overflow-hidden bg-gradient-to-br from-pink-100 to-rose-200 flex items-center justify-center">
+            <i className="ph-fill ph-shield-check text-rose-300 text-6xl opacity-40 absolute" />
+            <img
+              src="./assets/images/medication_safety_card_1792567045237.jpg"
+              alt="투약 5대 원칙 안전 실무"
+              className="w-full h-full object-cover transition-transform duration-500 hover:scale-105 relative z-10"
+              onError={(e) => {
+                const target = e.currentTarget;
+                if (!target.dataset.tried) {
+                  target.dataset.tried = '1';
+                  target.src = '/assets/images/medication_safety_card_1792567045237.jpg';
+                } else if (target.dataset.tried === '1') {
+                  target.dataset.tried = '2';
+                  target.src = './public/assets/images/medication_safety_card_1792567045237.jpg';
+                } else {
+                  target.style.display = 'none';
+                }
+              }}
+            />
+            <div className="absolute top-3 left-3 px-2.5 py-1 rounded-full bg-white/90 backdrop-blur-md text-rose-600 text-[11px] font-bold shadow-sm border border-pink-200 z-20">
+              5 Rights Protocol
+            </div>
+          </div>
+          <div className="p-4 sm:p-5 flex-1 flex flex-col justify-between space-y-3">
+            <div>
+              <h4 className="font-bold text-slate-800 text-base mb-1.5 flex items-center gap-1.5">
+                <i className="ph-fill ph-shield-check text-rose-500" />
+                투약 5대 원칙 상시 준수
+              </h4>
+              <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                정확한 대상자, 약물, 용량, 투여경로, 투여시간의 5원칙을 바탕으로 고위험 약물과 수액 투약을 신뢰도 높게 관리합니다.
+              </p>
+            </div>
+            <div className="pt-2 border-t border-pink-100 flex items-center justify-between">
+              <span className="text-xs text-slate-400 font-medium">체크리스트 확인</span>
+              <button
+                onClick={() => setActiveTab && setActiveTab('utils')}
+                className="text-xs font-bold text-rose-600 hover:text-rose-700 flex items-center gap-1 cursor-pointer"
+              >
+                5대 원칙 바로가기 <i className="ph-bold ph-caret-right" />
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* 4. Daily Clinical Safety Tips */}
+      <div className="bg-gradient-to-r from-pink-50 via-rose-50/70 to-pink-100/50 rounded-2xl p-4 sm:p-5 border border-pink-200 shadow-sm">
+        <div className="flex items-start gap-3">
+          <div className="w-9 h-9 rounded-xl bg-rose-500 text-white flex items-center justify-center shrink-0 shadow-sm mt-0.5">
+            <i className="ph-fill ph-lightbulb text-lg" />
+          </div>
+          <div className="space-y-1.5 text-xs sm:text-sm">
+            <h4 className="font-bold text-rose-900">오늘의 간호 임상 안전 리마인더</h4>
+            <p className="text-slate-600 leading-relaxed">
+              고위험 약물(인슐린, 헤파린, KCl 등)은 투여 전 반드시 동료 간호사와 <strong>독립적 이중 확인(Independent Double Check)</strong>을 실시하고, 인퓨전 펌프 주입 속도(cc/hr)를 재점검하세요.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
 function App() {
-  const [activeTab, setActiveTab] = useState("ast");
+  const [activeTab, setActiveTab] = useState("home");
   return <div className="max-w-6xl mx-auto h-screen flex bg-[#fff5f7] text-slate-900 relative overflow-hidden sm:border-x sm:border-pink-200 sm:shadow-lg font-sans">
       {
     /* Left Sidebar Navigation */
@@ -3076,6 +4258,12 @@ function App() {
         </div>
 
         <nav className="flex-1 p-2 sm:p-4 overflow-y-auto mt-2">
+          <TabItem
+    icon="house"
+    label="홈"
+    active={activeTab === "home"}
+    onClick={() => setActiveTab("home")}
+  />
           <TabItem
     icon="calculator"
     label="계산기"
@@ -3212,7 +4400,7 @@ function App() {
           <div className="flex items-center gap-2">
             <i className="ph-fill ph-pill text-rose-500 text-xl" />
             <h1 className="text-lg font-bold text-slate-800">
-              {activeTab === "calc" ? "계산기" : activeTab === "db" ? "약물사전" : activeTab === "preg" ? "임부금기" : activeTab === "terms" ? "의학 용어 사전" : activeTab === "utils" ? "투약 5대 원칙" : "AST 가이드"}
+              {activeTab === "home" ? "홈" : activeTab === "calc" ? "계산기" : activeTab === "db" ? "약물사전" : activeTab === "preg" ? "임부금기" : activeTab === "terms" ? "의학 용어 사전" : activeTab === "utils" ? "투약 5대 원칙" : "AST 가이드"}
             </h1>
           </div>
           <span className="text-xs px-2 py-0.5 rounded-full bg-pink-50 text-rose-700 font-bold border border-pink-200">
@@ -3221,6 +4409,7 @@ function App() {
         </header>
 
         <div className="max-w-3xl mx-auto w-full pt-4 px-2 sm:px-4">
+          {activeTab === "home" && <HomeTab setActiveTab={setActiveTab} />}
           {activeTab === "calc" && <CalcTab />}
           {activeTab === "db" && <DBTab />}
           {activeTab === "preg" && <PregnancyTab />}
